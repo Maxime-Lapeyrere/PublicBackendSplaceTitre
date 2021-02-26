@@ -6,7 +6,7 @@ var router = express.Router();
 //get events
 router.post('/get-events', (req,res)=> {
   //filters in body
-  // research events of the user only if needed
+  
 })
 
 //get gymnase/terrains/cmplx sportifs

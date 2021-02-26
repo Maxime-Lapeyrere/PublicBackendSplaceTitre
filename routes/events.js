@@ -8,7 +8,7 @@ router.post('/create-event', (req,res) => {
 
 //invite user 
 router.post('/invite-user', (req,res) => {
-    
+
 })
 
 //edit event
@@ -18,9 +18,5 @@ router.put('/update-event', (req,res) => {
 
 //cancel event
 router.delete('/cancel-event', (req,res) => {
-    if (req.body.isAdmin) {
-
-    } else {
-
-    }
+    //
 })
