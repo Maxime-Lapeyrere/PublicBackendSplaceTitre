@@ -42,7 +42,10 @@ router.put('/edit-photo', (req,res) => {
 })
 
 router.post('/get-my-events', (req,res) => {
+  //body : user token
+  //find user
   //populate events from user.events foreign keys
+  //res.json a bool and the list of the events
 })
 
 module.exports = router;

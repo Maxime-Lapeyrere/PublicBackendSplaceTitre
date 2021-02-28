@@ -56,7 +56,7 @@ router.post('/add-friend', (req,res) => {
 
 //load conversation only when entering it
 router.post('/get-messages', (req,res) => {
-  //load conv with conv ID and user token ID for further security
+  //load conv with conv ID and user token for further security
 })
 
 router.post('/save-messages', (req,res) => {
