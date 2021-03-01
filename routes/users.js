@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
+const uid2 = require('uid2')
+const bcrypt = require('bcrypt')
 const fileUpload = require('express-fileupload')
-const fs = require('fs');
+const fs = require('fs')
 
 const UserModel = require('./db/UserModel')
 
@@ -25,7 +27,7 @@ const checkPasswordStrength = (password) => {
 //END
 
 //signup route, same used for 1st registering user then registering its preferences 
-router.post('/sign-up', (req,res) => {
+router.post('/sign-up', async (req,res) => {
   
   //body : username, email, password, fav sports (array), handiSport, country (from geo)
   //check if email or username already exists in DB
@@ -33,13 +35,20 @@ router.post('/sign-up', (req,res) => {
   //if all pass, bcrypt password
   //then save user to DB, res.json a bool and a token for the local storage and send an email confirmation
 
-  if (!checkEmailValidity(req.body.email)) {
+  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber} = req.body
+
+  if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
+    res.json({result:false, message: "Un champ obligatoire est manquant."})
+    return
+  }
+
+  if (!checkEmailValidity(email)) {
     res.json({result:false, message: "Cet email n'est pas valide."})
     return
   }
 
-  const foundUsername = UserModel.findOne({username: req.body.username})
-  const foundEmail = UserModel.findOne({email: req.body.email})
+  const foundUsername = UserModel.findOne({username})
+  const foundEmail = UserModel.findOne({email})
   if (foundUsername) {
     res.json({result:false, message: "Ce nom d'utilisateur existe déjà."})
     return
@@ -49,11 +58,34 @@ router.post('/sign-up', (req,res) => {
     return
   }
 
-  if (!checkPasswordStrength(req.body.password)) {
+  if (!checkPasswordStrength(password)) {
     res.json({result:false, message: "Ce mot de passe n'est pas assez sécurisé."})
     return
   }
 
+  try {
+    const hash = bcrypt.hashSync(password, 10)
+
+    const newUser = new UserModel({
+     username,
+      email,
+      password: hash,
+      age,
+      favoriteSports,
+      bio,
+      gender,
+      handiSport,
+      country,
+      phoneNumber,
+      connectionToken: uid2(64)
+    })
+
+    const savedUser = await newUser.save()
+    res.json({result: true, token: savedUser.connectionToken})
+  } catch (error) {
+    console.log(error)
+    res.json({result:false, message: "Une erreur est survenue. Essayez plus tard."})
+  }
 })
 
 //basic sign-in
