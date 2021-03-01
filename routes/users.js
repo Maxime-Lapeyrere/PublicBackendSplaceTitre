@@ -91,13 +91,19 @@ router.post('/sign-up', async (req,res) => {
   }
 })
 
-//basic sign-in
-router.post('/sign-in', (req,res) => {
+//sign-in
+router.post('/sign-in', async (req,res) => {
 
-  //body : username or email and password
-  //check if user exists
-  // compare body password with encrypted one
-  // if pass, res.json a bool and a token for the local storage
+  const {email, password} = req.body
+
+  const found = await UserModel.findOne({email})
+  if (!found) {
+    res.json({result: false, message: "L'email ou le mot de passe est incorrect."})
+    return
+  }
+  bcrypt.compare(password, found.password).then(response => {
+    response ? res.json({result:true, token: found.connectionToken}) : res.json({result:false, message: "L'email ou le mot de passe est incorrect."})
+  })
 
 })
 
