@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    userName: {type: String, unique: true},
+    username: {type: String, unique: true},
     email: {type: String, unique: true},
     password: String,
     age: Number,
@@ -30,4 +30,5 @@ const userSchema = new mongoose.Schema({
     resetTokenExpirationDate: Date
 })
 
-export default mongoose.model('users', userSchema);
+const UserModel = mongoose.model('users', userSchema);
+module.exports = UserModel
