@@ -31,7 +31,6 @@ router.get('/get-users', (req,res) => {
 router.post('/like', (req,res)=> {
   //check if it's an event or an user
   //check if it's an invitation to an event (replace the 'join-event' route from the event family)
-  
 })
 
 //swipe

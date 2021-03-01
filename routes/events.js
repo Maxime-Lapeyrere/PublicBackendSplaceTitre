@@ -33,3 +33,5 @@ router.delete('/cancel-event', (req,res) => {
     //if there is no other user on the event : delete the event from DB
     //res.json a bool and the event id if it still exists
 })
+
+module.exports = router;
