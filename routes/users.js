@@ -18,15 +18,8 @@ const checkEmailValidity = (email) => {
 }
 
 const checkPasswordStrength = (password) => {
-  const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
   const mediumRegex = /^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})/;
-  if (strongRegex.test(password)) {
-    return 3
-  } else if(mediumRegex.test(password)) {
-    return 2
-  } else {
-    return 1
-  }
+  return mediumRegex.test(password)
 }
 
 //END
@@ -47,13 +40,17 @@ router.post('/sign-up', (req,res) => {
 
   const foundUsername = UserModel.findOne({username: req.body.username})
   const foundEmail = UserModel.findOne({email: req.body.email})
-  
   if (foundUsername) {
     res.json({result:false, message: "Ce nom d'utilisateur existe déjà."})
     return
   }
   if (foundEmail) {
     res.json({result:false, message: "Cet email est déjà utilisé."})
+    return
+  }
+
+  if (!checkPasswordStrength(req.body.password)) {
+    res.json({result:false, message: "Ce mot de passe n'est pas assez sécurisé."})
     return
   }
 
