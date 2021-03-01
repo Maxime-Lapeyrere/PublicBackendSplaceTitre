@@ -13,7 +13,7 @@ const playgroundSchema = new mongoose.Schema({
     public: Boolean,
     contact: [String],
     covering: String,
-    icon: String
+    icons: [String]
 })
 
 const PlaygroundModel = mongoose.model('playgrounds', playgroundSchema)
