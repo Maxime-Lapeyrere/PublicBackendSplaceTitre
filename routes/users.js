@@ -10,7 +10,7 @@ const UserModel = require('./db/UserModel')
 
 //HELPER FUNCTIONS
 
-const checkTokenValidity = (date) => {
+const checkDateValidity = (date) => {
   return date < Date.now() ? false : true
 }
 
@@ -26,16 +26,10 @@ const checkPasswordStrength = (password) => {
 
 //END
 
-//signup route, same used for 1st registering user then registering its preferences 
+//signup route
 router.post('/sign-up', async (req,res) => {
-  
-  //body : username, email, password, fav sports (array), handiSport, country (from geo)
-  //check if email or username already exists in DB
-  //check if password has sufficient strength with RegEx (minimum would be medium)
-  //if all pass, bcrypt password
-  //then save user to DB, res.json a bool and a token for the local storage and send an email confirmation
 
-  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber} = req.body
+  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber, language} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -47,8 +41,8 @@ router.post('/sign-up', async (req,res) => {
     return
   }
 
-  const foundUsername = UserModel.findOne({username})
-  const foundEmail = UserModel.findOne({email})
+  const foundUsername = await UserModel.findOne({username})
+  const foundEmail = await UserModel.findOne({email})
   if (foundUsername) {
     res.json({result:false, message: "Ce nom d'utilisateur existe déjà."})
     return
@@ -67,7 +61,7 @@ router.post('/sign-up', async (req,res) => {
     const hash = bcrypt.hashSync(password, 10)
 
     const newUser = new UserModel({
-     username,
+      username,
       email,
       password: hash,
       age,
@@ -76,8 +70,17 @@ router.post('/sign-up', async (req,res) => {
       gender,
       handiSport,
       country,
+      language,
+      geolocation: {
+        latitude: null,
+        longitude: null
+      },
       phoneNumber,
-      connectionToken: uid2(64)
+      premium: false,
+      profilePicture: null,
+      connectionToken: uid2(64),
+      resetToken: null,
+      resetTokenExpirationDate: null
     })
 
     const savedUser = await newUser.save()
