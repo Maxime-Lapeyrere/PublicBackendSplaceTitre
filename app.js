@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 const eventRouter = require('./routes/events')
 
 var app = express();
+require('./routes/db/connect')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
