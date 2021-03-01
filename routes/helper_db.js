@@ -103,14 +103,19 @@ router.get('/fill-playground-internal', async (req,res) => {
         const resultJson  = JSON.parse(result.body)
         const playgrounds = resultJson.response.venues
 
-        playgrounds.map(async e => {
+        for (let i = 0; i< playgrounds.length;i++) {
+
+            const e = playgrounds[i]
+            const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.location.lng}&lat=${e.location.lat}`)
+            const reverseGeoJSON = JSON.parse(reverseGeo.body)
+
             const newPlayground = new PlaygroundModel({
                 name: e.name,
                 location: {
                     latitude: e.location.lat,
                     longitude: e.location.lng
                 },
-                address: e.location.formattedAddress.join(' '),
+                address: reverseGeoJSON.features[0].properties.label,
                 sports: e.categories.map(category => category.id),
                 affluence: undefined,
                 free: undefined,
@@ -120,9 +125,10 @@ router.get('/fill-playground-internal', async (req,res) => {
                 icons: e.categories.map(category => category.icon.prefix + category.icon.suffix)
             })
             await newPlayground.save()
-        })
+        }
         console.log("Playgrounds DB has been filled.")
         res.send("Playgrounds DB has been filled.")
+        
     } catch (error) {
         console.log(error)
         res.send(error)
