@@ -16,13 +16,6 @@ router.post('/invite-user', (req,res) => {
     //res.json a bool
 })
 
-//accepting invite for an event or just joining it from map/swipe (similar to 'like' route)
-router.post('/join-event', (req,res) => {
-    //body : user token and event id
-    //find event and join it
-    //res.json a bool
-})
-
 //edit event
 router.put('/update-event', (req,res) => {
     //body: user token and event id
