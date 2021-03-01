@@ -7,12 +7,13 @@ const playgroundSchema = new mongoose.Schema({
         longitude: Number
     },
     address: String,
-    sport: [String],
+    sports: [String],
     affluence: String,
     free: Boolean,
     public: Boolean,
     contact: [String],
-    covering: String
+    covering: String,
+    icon: String
 })
 
 const PlaygroundModel = mongoose.model('playgrounds', playgroundSchema)

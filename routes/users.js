@@ -29,7 +29,7 @@ const checkPasswordStrength = (password) => {
 //signup route
 router.post('/sign-up', async (req,res) => {
 
-  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber, language} = req.body
+  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -70,7 +70,7 @@ router.post('/sign-up', async (req,res) => {
       gender,
       handiSport,
       country,
-      language,
+      language: null,
       geolocation: {
         latitude: null,
         longitude: null
@@ -98,7 +98,7 @@ router.post('/sign-in', (req,res) => {
   //check if user exists
   // compare body password with encrypted one
   // if pass, res.json a bool and a token for the local storage
-  
+
 })
 
 //modif profil/preferences ( pas la photo de prof)
