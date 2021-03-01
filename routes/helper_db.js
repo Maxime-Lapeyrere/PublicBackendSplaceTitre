@@ -1,9 +1,94 @@
-//only for testing
+var express = require('express')
+var router = express.Router()
 
 const request = require('async-request')
 
-var express = require('express')
-var router = express.Router()
+const sportIds = [
+    {
+        name: "escalade",
+        id: '503289d391d4c4b30a586d6a'
+    },
+    {
+        name: 'badminton',
+        id: '52e81612bcbc57f1066b7a2b'
+    },
+    {
+        name: 'basketball',
+        id: '4bf58dd8d48988d1e1941735'
+    },
+    {
+        name: 'boxe',
+        id: '52f2ab2ebcbc57f1066b8b47'
+    },
+    {
+        name: 'velo',
+        id: '52f2ab2ebcbc57f1066b8b49'
+    },
+    {
+        name: 'piscine',
+        id: '4bf58dd8d48988d105941735'
+    },
+    {
+        name: 'fitness',
+        id: '52f2ab2ebcbc57f1066b8b48'
+    },
+    {
+        name: 'musculation',
+        id: '4bf58dd8d48988d176941735'
+    },
+    {
+        name: 'dojo',
+        id: '4bf58dd8d48988d101941735'
+    },
+    {
+        name: 'gymEnPleinAir',
+        id: '58daa1558bbb0b01f18ec203'
+    },
+    {
+        name: 'pilates',
+        id: '5744ccdfe4b0c0459246b4b2'
+    },
+    {
+        name: 'course',
+        id: '5744ccdfe4b0c0459246b4b2'
+    },
+    {
+        name: 'yoga',
+        id: '4bf58dd8d48988d102941735'
+    },
+    {
+        name: 'hockeySurGazon',
+        id: '4f452cd44b9081a197eba860'
+    },
+    {
+        name: 'hockeySurGlace',
+        id: '56aa371be4b08b9a8d57352c'
+    },
+    {
+        name: 'rugby',
+        id: '52e81612bcbc57f1066b7a2c'
+    },
+    {
+        name: 'skate',
+        id: '4bf58dd8d48988d167941735'
+    },
+    {
+        name: 'patinage',
+        id: '4bf58dd8d48988d168941735'
+    },
+    {
+        name: 'football',
+        id: '4cce455aebf7b749d5e191f5'
+    },
+    {
+        name: 'squash',
+        id: '52e81612bcbc57f1066b7a2d'
+    },
+    {
+        name: 'volleyball',
+        id: '4eb1bf013b7b6f98df247e07'
+    },
+]
 
 const PlaygroundModel = require('./db/PlaygroundModel')
 
