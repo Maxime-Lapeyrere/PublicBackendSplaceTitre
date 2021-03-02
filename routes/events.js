@@ -43,7 +43,8 @@ router.post('/create-event', async (req,res) => {
         const savedEvent = await newEvent.save()
         userFound.joinedEvents.push(savedEvent._id)
         await userFound.save()
-        res.json({result:true, eventId: savedEvent._id})
+        res.json({result:true, eventId: savedEvent._id, message:"Votre évènement a bien été crée."})
+        //the route invite users will be called if result is true
     } catch (error) {
         console.log(error)
         res.json({result:false, message: "Un problème est survenu lors de la création de votre évènement."})
@@ -51,20 +52,46 @@ router.post('/create-event', async (req,res) => {
     
 })
 
-//invite user ('/get-friends' route will first render the people the admin can invite)
+//invite user ('/get-friends' route will first render the people the admin can invite, without the one already invited)
 router.post('/invite-users', (req,res) => {
-    //body : user token and searched user's object id
-    //find searched user and send notification/email
+    //body : user token and searched user's object id, + boolean for adding user after creating an event or during
+    //check boolean event creation
+    //find searched users and send notification/email
     //res.json a bool
 })
 
-//edit event
-router.put('/update-event', (req,res) => {
-    //body: user token and event id
+//edit event, the infos of the event will be pre-loaded on the frontend via the route /users/get-my-events
+router.put('/update-event', async (req,res) => {
+    //body: event id and event infos
     //find event
     //update infos
     //save
     //res json a bool and event id
+
+    const {eventId, title, time, date, address, placeId, handiSport,mix, privateEvent,invitedUsers} = req.body
+
+    const event = await EventModel.findOne({_id: eventId})
+    if (!event) {
+        res.json({result:false, message: "Un problème est survenu lors de la modification de cette évènement."})
+        return
+    }
+    try {
+        event.invitedUsers = invitedUsers
+        event.title = title
+        event.address = address
+        event.place = placeId
+        event.time = fixDate(date,time)
+        event.handiSport = handiSport
+        event.mix = mix
+        event.privateEvent = privateEvent
+
+        await event.save()
+
+        res.json({result:true, message:"Votre évènement a bien été modifié."})      
+        //the route invite users will be called if result is true and will check what users is different from before  
+    } catch (error) {
+        res.json({result:false, message:"Un problème est survenu lors de la modification de cette évènement."})
+    }
 })
 
 //cancel event
