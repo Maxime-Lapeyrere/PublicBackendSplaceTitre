@@ -10,7 +10,8 @@ const eventSchema = new mongoose.Schema({
     time: Date,
     level : Number,
     handiSport: Boolean,
-    mix: Boolean
+    mix: Boolean,
+    privateEvent: Boolean
 })
 
 const EventModel = mongoose.model('events', eventSchema)

@@ -18,7 +18,7 @@ const fixDate = (date, time) => {
 //create event + gestion de l'event (invitations?)
 router.post('/create-event', async (req,res) => {
 
-    const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix} = req.body
+    const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent} = req.body
     //we will format the hour and date from the front and send a full date to the back
 
     const userFound = await UserModel.findOne({connectionToken : token})
@@ -37,7 +37,8 @@ router.post('/create-event', async (req,res) => {
             time: fixDate(date,time),
             level: undefined,
             handiSport,
-            mix
+            mix,
+            privateEvent
         })
         const savedEvent = await newEvent.save()
         userFound.joinedEvents.push(savedEvent._id)
