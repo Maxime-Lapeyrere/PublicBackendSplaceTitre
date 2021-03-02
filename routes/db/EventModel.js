@@ -6,6 +6,7 @@ const eventSchema = new mongoose.Schema({
     participatingUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     title: String,
     address: String,
+    sport: String,
     place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
     time: Date,
     level : Number,

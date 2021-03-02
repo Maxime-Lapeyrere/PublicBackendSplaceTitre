@@ -18,7 +18,7 @@ const fixDate = (date, time) => {
 //create event + gestion de l'event (invitations?)
 router.post('/create-event', async (req,res) => {
 
-    const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent} = req.body
+    const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent, sport} = req.body
     //we will format the hour and date from the front and send a full date to the back
 
     const user = await UserModel.findOne({connectionToken : token})
@@ -33,6 +33,7 @@ router.post('/create-event', async (req,res) => {
             participatingUsers: [],
             title,
             address,
+            sport,
             place: placeId,
             time: fixDate(date,time),
             level: undefined,
@@ -65,7 +66,7 @@ router.post('/invite-users', (req,res) => {
 //edit event, the infos of the event will be pre-loaded on the frontend via the route /users/get-my-events
 router.put('/update-event', async (req,res) => {
 
-    const {eventId, title, time, date, address, placeId, handiSport,mix, privateEvent,invitedUsers} = req.body
+    const {eventId, title, time, date, address, placeId, handiSport,mix, privateEvent,invitedUsers,sport} = req.body
 
     const event = await EventModel.findOne({_id: eventId})
     if (!event) {
@@ -81,6 +82,7 @@ router.put('/update-event', async (req,res) => {
         event.handiSport = handiSport
         event.mix = mix
         event.privateEvent = privateEvent
+        event.sport = sport
 
         await event.save()
 
