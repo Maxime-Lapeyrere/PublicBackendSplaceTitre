@@ -2,11 +2,13 @@ const mongoose = require('mongoose')
 
 const eventSchema = new mongoose.Schema({
     admin: {type: mongoose.Schema.Types.ObjectId, ref: 'users'},
-    users: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
+    invitedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
+    participatingUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     title: String,
     address: String,
     place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
     time: Date,
+    date: Date,
     level : Number,
     handiSport: Boolean,
     mix: Boolean

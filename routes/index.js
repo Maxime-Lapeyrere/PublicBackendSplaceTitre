@@ -42,9 +42,14 @@ router.post('/dislike', (req,res)=> {
 //COMMUNITY
 // list d'amis, recherche user, and start conversation
 
-//generer la liste d'amis ET l'historique de conversations
+//generer la liste d'amis 
 router.post('/get-friends',(req,res) => {
   //fetch friend list and conversations history from db
+})
+
+//ET l'historique de conversations
+router.post('/get-conversations-history', (req,res) => {
+
 })
 
 router.post('/search-user', (req,res) => {
