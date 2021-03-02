@@ -58,6 +58,8 @@ router.post('/invite-users', (req,res) => {
     //check boolean event creation
     //find searched users and send notification/email
     //res.json a bool
+
+    //should be using Expo Push Notif API on front, more research needed
 })
 
 //edit event, the infos of the event will be pre-loaded on the frontend via the route /users/get-my-events
@@ -101,32 +103,46 @@ router.post('/cancel-event', async (req,res) => {
     }
     try {
         const event = await EventModel.findOne({_id: eventId})
-        if (event.participatingUsers.indexOf(JSON.stringify(user._id)) === -1 && JSON.stringify(user._id) != JSON.stringify(event.admin)) {
+        if (event.participatingUsers.indexOf(user._id) === -1 && JSON.stringify(user._id) != JSON.stringify(event.admin)) {
             res.json({result: false, message: "Vous ne participez pas à cet évènement."})
             return
         }
+
+        let message = ""
+
         if (JSON.stringify(user._id) === JSON.stringify(event.admin)) {
             if(event.participatingUsers.length === 0) {
+
                 await event.remove()
-                res.json({result: true, message: "Comme votre évènement n'avait aucun participant. Il a été supprimé."})
+
+                message =  "Comme votre évènement n'avait aucun participant, il a été supprimé."
             } else {
+
                 const indexNewAdmin = newAdminId ? event.participatingUsers.findIndex(e => JSON.stringify(e) === JSON.stringify(newAdminId)) : Math.floor(Math.random() * event.participatingUsers.length)
                 event.admin = newAdminId ? newAdminId : event.participatingUsers[indexNewAdmin]
                 event.participatingUsers.splice(indexNewAdmin,1)
                 await event.save()
-                res.json({result: true, message: "Votre évènement a été supprimé et le rôle d'administrateur a été délégué."})
-                //notification to participating users
+                
+                message = "Votre évènement a été supprimé de votre compte et le rôle d'administrateur a été délégué."
+                //+ notification to participating users
             }
+
         } else {
             const indexCancellingUser = event.participatingUsers.findIndex(e => JSON.stringify(e) === JSON.stringify(user._id))
             event.participatingUsers.splice(indexCancellingUser,1)
             await event.save()
-            res.json({result: true, message: "Vous avez bien annulé votre venu à cet évènement."})
-            //notif to admin
+            message = "Vous avez bien annulé votre venu à cet évènement."
+            //+ notif to admin
         }
+
+        const eventIndexInUser = user.joinedEvents.findIndex(e => JSON.stringify(e) === JSON.stringify(eventId))
+        user.joinedEvents.splice(eventIndexInUser, 1)
+        await user.save()
+
+        res.json({result: true, message})
+
     } catch (error) {
         res.json({result: false, message: error})
-        return
     }
     
 })

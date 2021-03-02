@@ -1,9 +1,11 @@
 var express = require('express')
 var router = express.Router()
 
-const EventModel = require('./db/EventModel')
-
 const request = require('async-request')
+
+const EventModel = require('./db/EventModel')
+const PlaceModel = require('./db/PlaceModel')
+const UserModel = require('./db/UserModel')
 
 const sportIds = [
     {
@@ -150,8 +152,8 @@ const cities = [
     },
 ]
 
-const PlaceModel = require('./db/PlaceModel')
 
+//filling places DB
 router.get('/fill-playground-internal', async (req,res) => {
 
     await PlaceModel.deleteMany({}).then(() => console.log("Places data cleared.")).catch(err => console.log(err))
@@ -200,9 +202,9 @@ router.get('/fill-playground-internal', async (req,res) => {
     }
 })
 
+//taking invitedUsers from one event and moving them to participatingUsers
 router.put('/fill-participation', async (req,res) => {
     const {eventId} = req.body
-    const targetCount = 2
 
     const event = await EventModel.findOne({_id: eventId})
 
@@ -219,15 +221,23 @@ router.put('/fill-participation', async (req,res) => {
 
     try {
         for (let i = 0; i < event.invitedUsers.length ; i++) {
-            if (i === targetCount ) {
-                break
+            const user = await UserModel.findOne({_id: event.invitedUsers[i]})
+            if (user) {
+                user.joinedEvents.push(event._id)
+                await user.save()
+                
+                event.participatingUsers.push(event.invitedUsers[i])
+                event.invitedUsers.splice(i,1)
+                i--
+                await event.save()
+            } else {
+                console.log("No user found.")
+                res.send("No user found.")
+                return
             }
-            event.participatingUsers.push(event.invitedUsers[i])
-            event.invitedUsers.splice(i,1)
-            await event.save()
         }
-        console.log(targetCount + " invited users set to participate.")
-        res.send(targetCount + " invited users set to participate.")
+        console.log("invited users set to participate.")
+        res.send("invited users set to participate.")
     } catch (error) {
         console.log(error)
         res.send(error)
