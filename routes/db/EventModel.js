@@ -8,7 +8,6 @@ const eventSchema = new mongoose.Schema({
     address: String,
     place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
     time: Date,
-    date: Date,
     level : Number,
     handiSport: Boolean,
     mix: Boolean

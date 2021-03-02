@@ -4,14 +4,22 @@ var router = express.Router();
 const UserModel = require('./db/UserModel')
 const EventModel = require('./db/EventModel')
 
+//temporary helper, testing purposes, might be used on front to transform the date and time to a full date
+const fixDate = (date, time) => {
+    if (typeof date != "string" || typeof time != "string") {
+        console.log("One the input are not the correct type.")
+        return
+    }
+    //const dateOnly = date.getDay()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()
+    const unix = Date.parse(date + " " + time)
+    return new Date(unix)
+}
+
 //create event + gestion de l'event (invitations?)
 router.post('/create-event', async (req,res) => {
-    //body : event infos and user token
-    //check if there is already an event at the same time and location (?)
-    //store event data through event Model and save it to DB
-    //res.json a bool and event id
 
     const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix} = req.body
+    //we will format the hour and date from the front and send a full date to the back
 
     const userFound = await UserModel.findOne({connectionToken : token})
     if (!userFound) {
@@ -26,17 +34,18 @@ router.post('/create-event', async (req,res) => {
             title,
             address,
             place: placeId,
-            time,
-            date,
+            time: fixDate(date,time),
             level: undefined,
             handiSport,
             mix
         })
         const savedEvent = await newEvent.save()
+        userFound.joinedEvents.push(savedEvent._id)
+        await userFound.save()
         res.json({result:true, eventId: savedEvent._id})
     } catch (error) {
         console.log(error)
-        res.json({result:true, message: "Un problème est survenu lors de la création de votre évènement."})
+        res.json({result:false, message: "Un problème est survenu lors de la création de votre évènement."})
     }
     
 })

@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     country: String,
     blockedUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     favoriteSports: [String],
-    favoritePlaygrounds: [{type: mongoose.Schema.Types.ObjectId, ref: 'places'}],
+    favoritePlaces: [{type: mongoose.Schema.Types.ObjectId, ref: 'places'}],
     club: [String], //(?)
     language: String,
     conversations: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversations'}],
