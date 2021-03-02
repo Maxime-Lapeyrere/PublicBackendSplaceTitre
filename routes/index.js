@@ -24,7 +24,7 @@ router.post('/get-shops', (req,res) => {
 //swipe
 router.get('/get-users', (req,res) => {
   //filters in query >> ie distance preferences
-
+  
 })
 
 //swipe
