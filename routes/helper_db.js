@@ -155,7 +155,7 @@ router.get('/fill-playground-internal', async (req,res) => {
     await PlaygroundModel.deleteMany({}).then(() => console.log("Playground data cleared.")).catch(err => console.log(err))
 
     try {
-        for (let j = 0; j < cities.length; j++) {
+        for (let j = 0; j < 2; j++) { // replace 2 by cities.length for full list of city
             for (let k = 0; k < sportIds.length;k++) {
                 const result = await request(`https://api.foursquare.com/v2/venues/search?client_id=ID0H1AIMM4ACISZJSL4LOHDEUROIBXYL1REZWETBZ0Q3XQ23&client_secret=WY2S0O3CSK5E1XAGEJ4GYE0V1VPLAR1MBBJE5KS1ORUF0DKW&v=20210215&ll=${cities[j].lat}, ${cities[j].lon}&radius=10000&query=&categoryId=${sportIds[k].id}`)
                 const resultJson  = JSON.parse(result.body)
@@ -174,7 +174,7 @@ router.get('/fill-playground-internal', async (req,res) => {
                                 latitude: e.location.lat,
                                 longitude: e.location.lng
                             },
-                            address: reverseGeoJSON.features[0].properties.label,
+                            address: reverseGeoJSON.features[0]?.properties.label,
                             sports: e.categories.map(category => category.id),
                             affluence: undefined,
                             free: undefined,
