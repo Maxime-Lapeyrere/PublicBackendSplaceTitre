@@ -21,14 +21,14 @@ router.post('/create-event', async (req,res) => {
     const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent} = req.body
     //we will format the hour and date from the front and send a full date to the back
 
-    const userFound = await UserModel.findOne({connectionToken : token})
-    if (!userFound) {
+    const user = await UserModel.findOne({connectionToken : token})
+    if (!user) {
         res.json({result: false, message: "Un problème est survenu lors de la création de votre évènement.", disconnectUser: true})
         return
     }
     try {
         const newEvent = new EventModel({
-            admin: userFound._id,
+            admin: user._id,
             invitedUsers,
             participatingUsers: [],
             title,
@@ -41,8 +41,8 @@ router.post('/create-event', async (req,res) => {
             privateEvent
         })
         const savedEvent = await newEvent.save()
-        userFound.joinedEvents.push(savedEvent._id)
-        await userFound.save()
+        user.joinedEvents.push(savedEvent._id)
+        await user.save()
         res.json({result:true, eventId: savedEvent._id, message:"Votre évènement a bien été crée."})
         //the route invite users will be called if result is true
     } catch (error) {
@@ -62,11 +62,6 @@ router.post('/invite-users', (req,res) => {
 
 //edit event, the infos of the event will be pre-loaded on the frontend via the route /users/get-my-events
 router.put('/update-event', async (req,res) => {
-    //body: event id and event infos
-    //find event
-    //update infos
-    //save
-    //res json a bool and event id
 
     const {eventId, title, time, date, address, placeId, handiSport,mix, privateEvent,invitedUsers} = req.body
 
@@ -95,12 +90,45 @@ router.put('/update-event', async (req,res) => {
 })
 
 //cancel event
-router.delete('/cancel-event', (req,res) => {
-    //body: user token and event id ( optionally the other user id that has been chosen to be new admin)
-    //find the event
-    //relay admin role to designated user by sending a notification ( random user if previous admin didnt select any)
-    //if there is no other user on the event : delete the event from DB
-    //res.json a bool and the event id if it still exists
+router.post('/cancel-event', async (req,res) => {
+
+    const {token, eventId, newAdminId} = req.body
+    const user = await UserModel.findOne({connectionToken: token})
+
+    if (!user) {
+        res.json({result: false, message: "Un problème est survenu lors de l'annulation de cet évènement.", disconnectUser: true})
+        return
+    }
+    try {
+        const event = await EventModel.findOne({_id: eventId})
+        if (event.participatingUsers.indexOf(JSON.stringify(user._id)) === -1 && JSON.stringify(user._id) != JSON.stringify(event.admin)) {
+            res.json({result: false, message: "Vous ne participez pas à cet évènement."})
+            return
+        }
+        if (JSON.stringify(user._id) === JSON.stringify(event.admin)) {
+            if(event.participatingUsers.length === 0) {
+                await event.remove()
+                res.json({result: true, message: "Comme votre évènement n'avait aucun participant. Il a été supprimé."})
+            } else {
+                const indexNewAdmin = newAdminId ? event.participatingUsers.findIndex(e => JSON.stringify(e) === JSON.stringify(newAdminId)) : Math.floor(Math.random() * event.participatingUsers.length)
+                event.admin = newAdminId ? newAdminId : event.participatingUsers[indexNewAdmin]
+                event.participatingUsers.splice(indexNewAdmin,1)
+                await event.save()
+                res.json({result: true, message: "Votre évènement a été supprimé et le rôle d'administrateur a été délégué."})
+                //notification to participating users
+            }
+        } else {
+            const indexCancellingUser = event.participatingUsers.findIndex(e => JSON.stringify(e) === JSON.stringify(user._id))
+            event.participatingUsers.splice(indexCancellingUser,1)
+            await event.save()
+            res.json({result: true, message: "Vous avez bien annulé votre venu à cet évènement."})
+            //notif to admin
+        }
+    } catch (error) {
+        res.json({result: false, message: error})
+        return
+    }
+    
 })
 
 module.exports = router;

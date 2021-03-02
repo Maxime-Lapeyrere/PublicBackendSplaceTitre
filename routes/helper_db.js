@@ -1,6 +1,8 @@
 var express = require('express')
 var router = express.Router()
 
+const EventModel = require('./db/EventModel')
+
 const request = require('async-request')
 
 const sportIds = [
@@ -196,6 +198,41 @@ router.get('/fill-playground-internal', async (req,res) => {
         console.log(error)
         res.send(error)
     }
+})
+
+router.put('/fill-participation', async (req,res) => {
+    const {eventId} = req.body
+    const targetCount = 2
+
+    const event = await EventModel.findOne({_id: eventId})
+
+    if (!event) {
+        console.log("No event found.")
+        res.send("No event found.")
+        return
+    }
+    if (event.invitedUsers.length === 0) {
+        console.log("No invited user.")
+        res.send("No invited user.")
+        return
+    }
+
+    try {
+        for (let i = 0; i < event.invitedUsers.length ; i++) {
+            if (i === targetCount ) {
+                break
+            }
+            event.participatingUsers.push(event.invitedUsers[i])
+            event.invitedUsers.splice(i,1)
+            await event.save()
+        }
+        console.log(targetCount + " invited users set to participate.")
+        res.send(targetCount + " invited users set to participate.")
+    } catch (error) {
+        console.log(error)
+        res.send(error)
+    }
+    
 })
 
 module.exports = router
