@@ -148,27 +148,27 @@ const cities = [
     },
 ]
 
-const PlaygroundModel = require('./db/PlaygroundModel')
+const PlaceModel = require('./db/PlaceModel')
 
 router.get('/fill-playground-internal', async (req,res) => {
 
-    await PlaygroundModel.deleteMany({}).then(() => console.log("Playground data cleared.")).catch(err => console.log(err))
+    await PlaceModel.deleteMany({}).then(() => console.log("Places data cleared.")).catch(err => console.log(err))
 
     try {
         for (let j = 0; j < 2; j++) { // replace 2 by cities.length for full list of city
             for (let k = 0; k < sportIds.length;k++) {
                 const result = await request(`https://api.foursquare.com/v2/venues/search?client_id=ID0H1AIMM4ACISZJSL4LOHDEUROIBXYL1REZWETBZ0Q3XQ23&client_secret=WY2S0O3CSK5E1XAGEJ4GYE0V1VPLAR1MBBJE5KS1ORUF0DKW&v=20210215&ll=${cities[j].lat}, ${cities[j].lon}&radius=10000&query=&categoryId=${sportIds[k].id}`)
                 const resultJson  = JSON.parse(result.body)
-                const playgrounds = resultJson.response.venues
+                const places = resultJson.response.venues
 
-                if(playgrounds.length > 0) {
-                    for (let i = 0; i< playgrounds.length;i++) {
+                if(places.length > 0) {
+                    for (let i = 0; i< places.length;i++) {
 
-                        const e = playgrounds[i]
+                        const e = places[i]
                         const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.location.lng}&lat=${e.location.lat}`)
                         const reverseGeoJSON = JSON.parse(reverseGeo.body)
     
-                        const newPlayground = new PlaygroundModel({
+                        const newPlace = new PlaceModel({
                             name: e.name,
                             location: {
                                 latitude: e.location.lat,
@@ -183,14 +183,14 @@ router.get('/fill-playground-internal', async (req,res) => {
                             covering: undefined,
                             icons: e.categories.map(category => category.icon.prefix + category.icon.suffix)
                         })
-                    await newPlayground.save()
+                    await newPlace.save()
                     }
                 }
             }
         }
 
-        console.log("Playgrounds DB has been filled.")
-        res.send("Playgrounds DB has been filled.")
+        console.log("Places DB has been filled.")
+        res.send("Places DB has been filled.")
         
     } catch (error) {
         console.log(error)

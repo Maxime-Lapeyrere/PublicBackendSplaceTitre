@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const playgroundSchema = new mongoose.Schema({
+const placeSchema = new mongoose.Schema({
     name: String,
     location: {
         latitude: Number,
@@ -16,5 +16,5 @@ const playgroundSchema = new mongoose.Schema({
     icons: [String]
 })
 
-const PlaygroundModel = mongoose.model('playgrounds', playgroundSchema)
+const PlaceModel = mongoose.model('playgrounds', placeSchema)
 module.exports = PlaygroundModel
