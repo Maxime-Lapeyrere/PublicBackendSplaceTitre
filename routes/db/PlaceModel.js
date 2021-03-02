@@ -16,5 +16,5 @@ const placeSchema = new mongoose.Schema({
     icons: [String]
 })
 
-const PlaceModel = mongoose.model('playgrounds', placeSchema)
-module.exports = PlaygroundModel
+const PlaceModel = mongoose.model('places', placeSchema)
+module.exports = PlaceModel

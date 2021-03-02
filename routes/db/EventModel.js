@@ -5,8 +5,11 @@ const eventSchema = new mongoose.Schema({
     users: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     title: String,
     address: String,
-    playground: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
-    
+    place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
+    time: Date,
+    level : Number,
+    handiSport: Boolean,
+    mix: Boolean
 })
 
 const EventModel = mongoose.model('events', eventSchema)
