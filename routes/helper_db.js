@@ -71,6 +71,7 @@ const cities = [
 router.get('/fill-places-internal', async (req,res) => {
 
     await PlaceModel.deleteMany({}).then(() => console.log("Places data cleared.")).catch(err => console.log(err))
+    //in future, we wont delete all places, we'll just add the one missings by comparing their apiID, so we'll be able to save the futureEvents for them to be passed over
 
     try {
         for (let j = 0; j < 1; j++) { // replace 1 by cities.length for full list of city, here only Paris will be searched, for test purposes
@@ -87,6 +88,7 @@ router.get('/fill-places-internal', async (req,res) => {
                         const reverseGeoJSON = JSON.parse(reverseGeo.body)
     
                         const newPlace = new PlaceModel({
+                            apiID: e.id,
                             name: e.name,
                             location: {
                                 latitude: e.location.lat,
@@ -99,7 +101,8 @@ router.get('/fill-places-internal', async (req,res) => {
                             public: undefined,
                             contact: [],
                             covering: undefined,
-                            icons: e.categories.map(category => category.icon.prefix + category.icon.suffix)
+                            icons: e.categories.map(category => category.icon.prefix + category.icon.suffix),
+                            futureEvents: []
                         })
                     await newPlace.save()
                     }

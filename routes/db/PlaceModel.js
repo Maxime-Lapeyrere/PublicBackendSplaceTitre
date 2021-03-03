@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const placeSchema = new mongoose.Schema({
+    apiID: String,
     name: String,
     location: {
         latitude: Number,
@@ -13,7 +14,8 @@ const placeSchema = new mongoose.Schema({
     public: Boolean,
     contact: [String],
     covering: String,
-    icons: [String]
+    icons: [String],
+    futureEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}]
 })
 
 const PlaceModel = mongoose.model('places', placeSchema)

@@ -10,26 +10,18 @@ const {fixDate, getDistanceFromLatLonInKm} = require('./helper_func')
 
 //get events
 router.post('/get-events', async (req,res)=> {
-  
-  //location will be added later with phone geolocation or with the one saved in user db, we will be using a test location for now (center Paris)
 
   const events = []
 
   let {sportsSelected, distancePreference, userLocation} = req.body
   //date and time might be added later to optimise filtered info
-  
-  console.log(sportsSelected)
-  
-  
+  //once testing done, replace let by const
 
-  //testing
+  //testing, will have to be removed once testing in Paris is done
   userLocation.lat = 48.866667
   userLocation.lon = 2.333333
   //end
   
-  console.log(typeof distancePreference)
-  console.log(distancePreference)
-  console.log(userLocation)
 
   for (let i = 0; i < sportsSelected.length;i++) {
 
@@ -58,8 +50,37 @@ router.post('/get-events', async (req,res)=> {
 })
 
 //get gymnase/terrains/cmplx sportifs
-router.post('/get-poi', (req,res)=> {
-  //filters in body
+router.post('/get-places', async (req,res)=> {
+
+  const places = []
+
+  let {sportsSelected, distancePreference, userLocation} = req.body
+  //date and time might be added later to optimise filtered info
+  //once testing done, replace let by const
+  
+  //testing, will have to be removed once testing in Paris is done
+  userLocation.lat = 48.866667
+  userLocation.lon = 2.333333
+  //end
+
+  for (let i = 0; i < sportsSelected.length;i++) {
+
+    const placesFound = await PlaceModel.find({sport: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
+    placesFound.forEach(e => {
+      const {latitude,longitude,name,sports,address,futureEvents} = e.location
+      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === e._id) === -1) {
+        places.push({
+          placeId: e._id,
+          name,
+          sports,
+          location: {latitude,longitude},
+          address,
+          futureEvents
+        })
+      }
+    })
+  }
+  res.json({result:true, places})
 
 })
 
