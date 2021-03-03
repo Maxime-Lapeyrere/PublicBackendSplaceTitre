@@ -128,10 +128,16 @@ router.put('/upload-profile-picture', (req,res) => {
 
   //body : user token and file (if possible)
 
+  const user = await UserModel.findOne({connectionToken: req.body.token})
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil."})
+    return
+  }
+
   const path = './tmp/'+uniqid()+'.jpg'
   await req.files.photo.mv(path, (err) => {
     if (err) {
-      res.json({result: false, error: "Issue copying photo to /tmp folder"})
+      res.json({result: false, message: "Un problème est survenu lors de la sauvegarde de votre photo."})
       return
     }
   })
@@ -140,11 +146,10 @@ router.put('/upload-profile-picture', (req,res) => {
     await cloudinary.uploader.upload(path, {folder: "UserPictureProfile"},async (error, response) => {
       if (error) {
         fs.unlinkSync(path)
-        res.json({result: false, error: "Issue uploading photo to cloudinary"})
+        res.json({result: false, message: "Un problème est survenu lors du chargement de votre photo de profil sur nos serveurs."})
       } else {
         fs.unlinkSync(path)
 
-        const user = await UserModel.findOne({connectionToken: req.body.token})
         user.profilePicture = response.secure_url
         await user.save()
 
@@ -152,8 +157,7 @@ router.put('/upload-profile-picture', (req,res) => {
       }
     })
   } catch (error) {
-    console.log("in catch block")
-    console.log(error)
+    res.json({result:false,  message: "Un problème est survenu."})
   }
 
 })
