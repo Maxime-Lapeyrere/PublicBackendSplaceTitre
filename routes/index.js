@@ -1,11 +1,15 @@
 var express = require('express');
 var router = express.Router();
+var userModel = require('./db/UserModel')
+var eventModel = require('./db/EventModel')
 
 // MAP & SWIPE, COMMUNITY BELOW
 
 //get events
-router.post('/get-events', (req,res)=> {
-  //filters in body
+router.get('/get-events', async function(req,res){
+  
+  const listEvents = await eventModel.find()
+  res.json(listEvents)
   
 })
 
@@ -22,8 +26,10 @@ router.post('/get-shops', (req,res) => {
 })
 
 //swipe
-router.get('/get-users', (req,res) => {
-  //filters in query >> ie distance preferences
+router.get('/get-users', async function(req,res){
+  const listUsers = await userModel.find()
+  res.json(listUsers)
+
 
 })
 
