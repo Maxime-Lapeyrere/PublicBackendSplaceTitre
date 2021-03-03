@@ -15,15 +15,30 @@ router.post('/get-events', async (req,res)=> {
 
   const events = []
 
-  const {sportsSelected, distancePreference, userLocation} = req.body
+  let {sportsSelected, distancePreference, userLocation} = req.body
   //date and time might be added later to optimise filtered info
   
+  console.log(sportsSelected)
   
+  
+
+  //testing
+  userLocation.lat = 48.866667
+  userLocation.lon = 2.333333
+  //end
+  
+  console.log(typeof distancePreference)
+  console.log(distancePreference)
+  console.log(userLocation)
+
   for (let i = 0; i < sportsSelected.length;i++) {
 
-    const eventsFound = await EventModel.find({sport: sportsSelected[i]}).populate('place').exec()
+    const eventsFound = await EventModel.find({sport: sportsSelected[i].id}).populate('place').exec()
 
     eventsFound.forEach(e => {
+      console.log(userLocation.lat, userLocation.lon)
+      console.log(e.place?.location?.latitude, e.place?.location?.longitude)
+      console.log(getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.place?.location?.latitude, e.place?.location?.longitude))
       if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.place?.location?.latitude, e.place?.location?.longitude) <= distancePreference) {
         events.push({
           title: e.title,
@@ -38,6 +53,7 @@ router.post('/get-events', async (req,res)=> {
           sportImage: e.sportImage? e.sportImage : null
         })
       }
+      console.log(events)
     })
   }
   res.json({result:true, events})
