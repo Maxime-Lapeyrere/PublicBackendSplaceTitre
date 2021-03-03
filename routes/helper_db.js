@@ -156,6 +156,37 @@ const cities = [
     },
 ]
 
+//temporary helper, testing purposes, might be used on front to transform the date and time to a full date
+export const fixDate = (date, time) => {
+    if (typeof date != "string" || typeof time != "string") {
+        console.log("One the input are not the correct type.")
+        return
+    }
+    //const dateOnly = date.getDay()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()
+    const unix = Date.parse(date + " " + time)
+    return new Date(unix)
+}
+
+export const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2) => {
+
+    if (!lat1 || !lat2 || !lon1 || !lon2) return undefined
+  
+    var R = 6371;
+    var dLat = deg2rad(lat2-lat1);
+    var dLon = deg2rad(lon2-lon1); 
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+      ; 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c;
+    return d;
+  }
+  
+  const deg2rad = (deg) => {
+    return deg * (Math.PI/180)
+  }
 
 //filling places DB
 router.get('/fill-places-internal', async (req,res) => {

@@ -4,30 +4,7 @@ var router = express.Router();
 const EventModel = require('./db/EventModel')
 const PlaceModel = require('./db/PlaceModel')
 
-//HELPERS
-
-const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2) => {
-
-  if (!lat1 || !lat2 || !lon1 || !lon2) return undefined
-
-  var R = 6371;
-  var dLat = deg2rad(lat2-lat1);
-  var dLon = deg2rad(lon2-lon1); 
-  var a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-    ; 
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  var d = R * c;
-  return d;
-}
-
-const deg2rad = (deg) => {
-  return deg * (Math.PI/180)
-}
-
-//END
+const {fixDate, getDistanceFromLatLonInKm} = require('./helper_db')
 
 // MAP & SWIPE ROUTES
 
@@ -42,7 +19,7 @@ router.post('/get-events', async (req,res)=> {
 
   const events = []
 
-  const {sportsSelected, distancePreference} = req.body
+  const {sportsSelected, distancePreference, time, date} = req.body
   
   
   for (let i = 0; i < sportsSelected.length;i++) {

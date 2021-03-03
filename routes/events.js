@@ -4,18 +4,7 @@ var router = express.Router();
 const UserModel = require('./db/UserModel')
 const EventModel = require('./db/EventModel')
 
-const {sportIds} = require('./helper_db')
-
-//temporary helper, testing purposes, might be used on front to transform the date and time to a full date
-const fixDate = (date, time) => {
-    if (typeof date != "string" || typeof time != "string") {
-        console.log("One the input are not the correct type.")
-        return
-    }
-    //const dateOnly = date.getDay()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()
-    const unix = Date.parse(date + " " + time)
-    return new Date(unix)
-}
+const {sportIds, fixDate} = require('./helper_db')
 
 //create event + gestion de l'event (invitations?)
 router.post('/create-event', async (req,res) => {
