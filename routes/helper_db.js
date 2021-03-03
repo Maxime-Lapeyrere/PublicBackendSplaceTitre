@@ -29,7 +29,7 @@ const sportIds = [
         id: '52f2ab2ebcbc57f1066b8b49'
     },
     {
-        name: 'piscine',
+        name: 'natation',
         id: '4bf58dd8d48988d105941735'
     },
     {
@@ -53,7 +53,7 @@ const sportIds = [
         id: '5744ccdfe4b0c0459246b4b2'
     },
     {
-        name: 'course',
+        name: 'running',
         id: '5744ccdfe4b0c0459246b4b2'
     },
     {
@@ -92,6 +92,10 @@ const sportIds = [
         name: 'volleyball',
         id: '4eb1bf013b7b6f98df247e07'
     },
+    {
+        name: 'tennis',
+        id: '4e39a956bd410d7aed40cbc3'
+    }
 ]
 
 const cities = [

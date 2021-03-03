@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     profilePicture: String,
     bio: String,
     jobTitle: String,
+    education: String,
     joinedEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}], //historique d'events et events à venir ici, traitement sera fait sur le back ou sur le front
     country: String,
     blockedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
