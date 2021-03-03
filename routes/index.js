@@ -21,7 +21,6 @@ router.post('/get-events', async (req,res)=> {
   userLocation.lat = 48.866667
   userLocation.lon = 2.333333
   //end
-  
 
   for (let i = 0; i < sportsSelected.length;i++) {
 

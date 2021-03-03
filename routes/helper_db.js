@@ -70,10 +70,10 @@ const cities = [
 //filling places DB
 router.get('/fill-places-internal', async (req,res) => {
 
-    await PlaceModel.deleteMany({}).then(() => console.log("Places data cleared.")).catch(err => console.log(err))
+   // await PlaceModel.deleteMany({}).then(() => console.log("Places data cleared.")).catch(err => console.log(err))
     //in future, we wont delete all places, we'll just add the one missings by comparing their apiID, so we'll be able to save the futureEvents for them to be passed over
-
-    try {
+    const placesBackUp = await PlaceModel.find({})
+    
         for (let j = 0; j < 1; j++) { // replace 1 by cities.length for full list of city, here only Paris will be searched, for test purposes
             for (let k = 0; k < sportIds.length;k++) {
                 const result = await request(`https://api.foursquare.com/v2/venues/search?client_id=ID0H1AIMM4ACISZJSL4LOHDEUROIBXYL1REZWETBZ0Q3XQ23&client_secret=WY2S0O3CSK5E1XAGEJ4GYE0V1VPLAR1MBBJE5KS1ORUF0DKW&v=20210215&ll=${cities[j].lat}, ${cities[j].lon}&radius=10000&query=&categoryId=${sportIds[k].id}`)
@@ -82,10 +82,11 @@ router.get('/fill-places-internal', async (req,res) => {
 
                 if(places.length > 0) {
                     for (let i = 0; i< places.length;i++) {
-
                         const e = places[i]
-                        const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.location.lng}&lat=${e.location.lat}`)
-                        const reverseGeoJSON = JSON.parse(reverseGeo.body)
+                        
+                        if (placesBackUp.findIndex(obj => obj.apiID === e.id) === -1) {
+                            const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.location.lng}&lat=${e.location.lat}`)
+                            const reverseGeoJSON = JSON.parse(reverseGeo.body)
     
                         const newPlace = new PlaceModel({
                             apiID: e.id,
@@ -104,7 +105,8 @@ router.get('/fill-places-internal', async (req,res) => {
                             icons: e.categories.map(category => category.icon.prefix + category.icon.suffix),
                             futureEvents: []
                         })
-                    await newPlace.save()
+                        await newPlace.save()
+                        }
                     }
                 }
             }
@@ -113,10 +115,6 @@ router.get('/fill-places-internal', async (req,res) => {
         console.log("Places DB has been filled.")
         res.send("Places DB has been filled.")
         
-    } catch (error) {
-        console.log(error)
-        res.send(error)
-    }
 })
 
 //taking invitedUsers from one event and moving them to participatingUsers
