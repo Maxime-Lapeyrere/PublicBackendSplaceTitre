@@ -4,7 +4,7 @@ var router = express.Router();
 const EventModel = require('./db/EventModel')
 const PlaceModel = require('./db/PlaceModel')
 
-const {fixDate, getDistanceFromLatLonInKm} = require('./helper_func')
+const {fixDate, getDistanceFromLatLonInKm, sportIds} = require('./helper_func')
 
 // MAP & SWIPE ROUTES
 
@@ -64,18 +64,25 @@ router.post('/get-places', async (req,res)=> {
 
   for (let i = 0; i < sportsSelected.length;i++) {
 
-    console.log(sportsSelected[i])
     const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
-    console.log(placesFound)
+
     placesFound.forEach(e => {
-      const {latitude,longitude,name,sports,address,futureEvents} = e.location
-      console.log(getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude))
-      console.log(places.findIndex(o => o.placeId === e._id))
-      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === e._id) === -1) {
+
+      const {latitude,longitude} = e.location
+      const {_id,name,address,sports,futureEvents} = e
+
+      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === _id) === -1) {
+
+        const sportNames = []
+        sports.forEach(object => {
+          const index = sportIds.findIndex(item => item.id === object)
+          sportNames.push(sportIds[index].name)
+        })
+        
         places.push({
-          placeId: e._id,
+          placeId: _id,
           name,
-          sports,
+          sports: sportNames.join(', '),
           location: {latitude,longitude},
           address,
           futureEvents
@@ -83,7 +90,6 @@ router.post('/get-places', async (req,res)=> {
       }
     })
   }
-  console.log(places)
   res.json({result:true, places})
 
 })
