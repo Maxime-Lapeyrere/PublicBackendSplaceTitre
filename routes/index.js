@@ -57,10 +57,6 @@ router.post('/get-events', async (req,res)=> {
   }
   res.json({result:true, events})
   
-  res.json({result:false, message: "catching error", err})
-  
-  
-  
 })
 
 //get gymnase/terrains/cmplx sportifs

@@ -19,7 +19,7 @@ const fixDate = (date, time) => {
 router.post('/create-event', async (req,res) => {
 
     const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent, sport} = req.body
-    //we will format the hour and date from the front and send a full date to the back
+    //both time and date are string type
 
     const user = await UserModel.findOne({connectionToken : token})
     if (!user) {
