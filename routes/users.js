@@ -124,13 +124,13 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/upload-profile-picture', (req,res) => {
+router.put('/upload-profile-picture', async (req,res) => {
 
   //body : user token and file (if possible)
 
   const user = await UserModel.findOne({connectionToken: req.body.token})
   if (!user) {
-    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil."})
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
 
@@ -162,11 +162,30 @@ router.put('/upload-profile-picture', (req,res) => {
 
 })
 
-router.post('/get-my-events', (req,res) => {
+router.post('/get-my-events', async (req,res) => {
   //body : user token
-  //find user
-  //populate events from user.events foreign keys
-  //res.json a bool and the list of the events
+  //idéalement, on enverra seulement des informations succinctes et on donnerait plus d'info via l'event id si l'event est séléctionné
+
+  const user = await UserModel.findOne({connectionToken: req.body.token}).populate('joinedEvents').exec()
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+  const events = []
+  user.joinedEvents.forEach(e => {
+    const {_id,participatingUsers,title,sportName,sportImage,time} = e
+    events.push({
+      eventId: _id,
+      participatingUsers,
+      title,
+      sportName,
+      sportImage,
+      time
+    })
+  })
+  res.json({result:true, events})
+
 })
 
 module.exports = router;

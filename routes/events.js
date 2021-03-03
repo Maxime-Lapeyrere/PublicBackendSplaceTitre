@@ -17,7 +17,7 @@ router.post('/create-event', async (req,res) => {
 
     const user = await UserModel.findOne({connectionToken : token})
     if (!user) {
-        res.json({result: false, message: "Un problème est survenu lors de la création de votre évènement.", disconnectUser: true})
+        res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
         return
     }
     try {
@@ -96,7 +96,7 @@ router.post('/cancel-event', async (req,res) => {
     const user = await UserModel.findOne({connectionToken: token})
 
     if (!user) {
-        res.json({result: false, message: "Un problème est survenu lors de l'annulation de cet évènement.", disconnectUser: true})
+        res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
         return
     }
     try {
