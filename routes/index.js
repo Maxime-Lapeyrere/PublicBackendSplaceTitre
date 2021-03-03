@@ -64,9 +64,13 @@ router.post('/get-places', async (req,res)=> {
 
   for (let i = 0; i < sportsSelected.length;i++) {
 
-    const placesFound = await PlaceModel.find({sport: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
+    console.log(sportsSelected[i])
+    const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
+    console.log(placesFound)
     placesFound.forEach(e => {
       const {latitude,longitude,name,sports,address,futureEvents} = e.location
+      console.log(getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude))
+      console.log(places.findIndex(o => o.placeId === e._id))
       if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === e._id) === -1) {
         places.push({
           placeId: e._id,
@@ -79,6 +83,7 @@ router.post('/get-places', async (req,res)=> {
       }
     })
   }
+  console.log(places)
   res.json({result:true, places})
 
 })
