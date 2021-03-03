@@ -7,7 +7,7 @@ const EventModel = require('./db/EventModel')
 const PlaceModel = require('./db/PlaceModel')
 const UserModel = require('./db/UserModel')
 
-const sportIds = [
+export const sportIds = [
     {
         name: "escalade",
         id: '503289d391d4c4b30a586d6a'

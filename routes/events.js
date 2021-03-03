@@ -4,6 +4,8 @@ var router = express.Router();
 const UserModel = require('./db/UserModel')
 const EventModel = require('./db/EventModel')
 
+const {sportIds} = require('./helper_db')
+
 //temporary helper, testing purposes, might be used on front to transform the date and time to a full date
 const fixDate = (date, time) => {
     if (typeof date != "string" || typeof time != "string") {
@@ -21,6 +23,9 @@ router.post('/create-event', async (req,res) => {
     const {token, invitedUsers, title, time, date, address, placeId, handiSport,mix, privateEvent, sport} = req.body
     //both time and date are string type
 
+    const sportObject = sportIds.find(e => e.id === sport)
+    const sportName = sportObject.name
+
     const user = await UserModel.findOne({connectionToken : token})
     if (!user) {
         res.json({result: false, message: "Un problème est survenu lors de la création de votre évènement.", disconnectUser: true})
@@ -34,6 +39,7 @@ router.post('/create-event', async (req,res) => {
             title,
             address,
             sport,
+            sportName,
             place: placeId,
             time: fixDate(date,time),
             level: undefined,
