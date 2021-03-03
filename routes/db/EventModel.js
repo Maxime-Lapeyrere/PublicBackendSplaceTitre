@@ -8,6 +8,7 @@ const eventSchema = new mongoose.Schema({
     address: String,
     sport: String,
     sportName: String,
+    sportImage: String,
     place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
     time: Date,
     level : Number,

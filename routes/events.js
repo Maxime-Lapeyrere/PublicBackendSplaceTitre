@@ -4,7 +4,7 @@ var router = express.Router();
 const UserModel = require('./db/UserModel')
 const EventModel = require('./db/EventModel')
 
-const {sportIds, fixDate} = require('./helper_db')
+const {sportIds, fixDate} = require('./helper_func')
 
 //create event + gestion de l'event (invitations?)
 router.post('/create-event', async (req,res) => {
@@ -29,6 +29,7 @@ router.post('/create-event', async (req,res) => {
             address,
             sport,
             sportName,
+            sportImage: null,
             place: placeId,
             time: fixDate(date,time),
             level: undefined,
