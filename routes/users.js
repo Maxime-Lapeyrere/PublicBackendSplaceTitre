@@ -188,4 +188,31 @@ router.post('/get-my-events', async (req,res) => {
 
 })
 
+router.post('/get-preferences', async (req,res) => {
+
+  const {token} = req.body
+
+  const user = await UserModel.findOne({connectionToken: token})
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+  const {favoriteSports, favoritePlaces, club,age,bio,gender,handiSport,country,language,profilePicture,premium} = user
+  res.json({result: true, preferences: {
+    favoriteSports,
+    favoritePlaces,
+    club,
+    age,
+    bio,
+    gender,
+    handiSport,
+    country,
+    language,
+    profilePicture,
+    premium
+  }})
+
+})
+
 module.exports = router;
