@@ -143,7 +143,7 @@ router.post('/dislike', (req,res)=> {
 //get address from custom place while creating an event
 router.post('/get-address-from-custom', async (req,res) => {
 
-  const {latitude, longitude} = req.body.customLocation
+  const {latitude, longitude} = req.body
 
   const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${longitude}&lat=${latitude}`)
   const reverseGeoJSON = JSON.parse(reverseGeo.body)
