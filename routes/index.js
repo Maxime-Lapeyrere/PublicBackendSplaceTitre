@@ -111,7 +111,6 @@ router.post('/get-places', async (req,res)=> {
       }
     })
   }
-  console.log(places)
   res.json({result:true, places})
 
 })

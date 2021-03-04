@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema({
     password: String,
     birthday: Date,
     gender: String,
+    genderSearch: String,
+    distanceSearch: Number, // in km
+    physicalCondition: Number,
     phoneNumber: String,
     handiSport: Boolean,
     geolocation: {
