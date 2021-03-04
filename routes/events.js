@@ -3,6 +3,7 @@ var router = express.Router();
 
 const UserModel = require('./db/UserModel')
 const EventModel = require('./db/EventModel')
+const PlaceModel = require('./db/PlaceModel')
 
 const {sportIds, fixDate} = require('./helper_func')
 
@@ -21,6 +22,7 @@ router.post('/create-event', async (req,res) => {
         return
     }
     try {
+
         const newEvent = new EventModel({
             admin: user._id,
             invitedUsers,
@@ -39,6 +41,14 @@ router.post('/create-event', async (req,res) => {
             privateEvent
         })
         const savedEvent = await newEvent.save()
+
+        if (placeId) {
+            const place = await PlaceModel.findOne({_id: placeId})
+            place.events.push(savedEvent._id)
+            await place.save()
+        }
+        
+
         user.joinedEvents.push(savedEvent._id)
         await user.save()
         res.json({result:true, eventId: savedEvent._id, message:"Votre évènement a bien été crée."})

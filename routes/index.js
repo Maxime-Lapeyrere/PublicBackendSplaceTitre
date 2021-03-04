@@ -34,8 +34,8 @@ router.post('/get-events', async (req,res)=> {
             address: e.address,
             sport: e.sport ? e.sport : null,
             sportName: e.sportName ? e.sportName : null,
-            placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
-            placeName: e.place.name,
+            placeLocation: {lat:e.location.lat,lon: e.location.lon},
+            placeName: e.title,
             time: e.time,
             handiSport: e.handiSport,
             mix: e.mix,
@@ -52,7 +52,7 @@ router.post('/get-events', async (req,res)=> {
             address: e.address,
             sport: e.sport ? e.sport : null,
             sportName: e.sportName ? e.sportName : null,
-            placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
+            placeLocation: {lat:e.location.lat,lon: e.location.lon},
             placeName: e.place.name,
             time: e.time,
             handiSport: e.handiSport,
@@ -111,6 +111,7 @@ router.post('/get-places', async (req,res)=> {
       }
     })
   }
+  console.log(places)
   res.json({result:true, places})
 
 })
