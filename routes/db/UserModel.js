@@ -17,9 +17,11 @@ const userSchema = new mongoose.Schema({
     teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'teams'}],
     profilePicture: String,
     bio: String,
+    jobTitle: String,
+    education: String,
     joinedEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}], //historique d'events et events à venir ici, traitement sera fait sur le back ou sur le front
     country: String,
-    blockedUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
+    blockedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     favoriteSports: [String],
     favoritePlaces: [{type: mongoose.Schema.Types.ObjectId, ref: 'places'}],
     club: [String], //(?)

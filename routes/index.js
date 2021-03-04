@@ -3,19 +3,96 @@ var router = express.Router();
 var userModel = require('./db/UserModel')
 var eventModel = require('./db/EventModel')
 
-// MAP & SWIPE, COMMUNITY BELOW
+const EventModel = require('./db/EventModel')
+const PlaceModel = require('./db/PlaceModel')
+
+const {fixDate, getDistanceFromLatLonInKm, sportIds} = require('./helper_func')
+
+// MAP & SWIPE ROUTES
 
 //get events
-router.get('/get-events', async function(req,res){
-  
-  const listEvents = await eventModel.find()
-  res.json(listEvents)
+router.post('/get-events', async (req,res)=> {
+
+  const events = []
+
+  let {sportsSelected, distancePreference, userLocation} = req.body
+  //date and time might be added later to optimise filtered info
+  //once testing done, replace let by const
+
+  //testing, will have to be removed once testing in Paris is done
+  userLocation.lat = 48.866667
+  userLocation.lon = 2.333333
+  //end
+
+  for (let i = 0; i < sportsSelected.length;i++) {
+
+    const eventsFound = await EventModel.find({sport: sportsSelected[i].id}).populate('place').exec()
+
+    eventsFound.forEach(e => {
+      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.place?.location?.latitude, e.place?.location?.longitude) <= distancePreference) {
+        events.push({
+          title: e.title,
+          address: e.address,
+          sport: e.sport ? e.sport : null,
+          sportName: e.sportName ? e.sportName : null,
+          placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
+          placeName: e.place.name,
+          time: e.time,
+          handiSport: e.handiSport,
+          mix: e.mix,
+          sportImage: e.sportImage? e.sportImage : null,
+          eventId: e._id
+        })
+      }
+    })
+  }
+  res.json({result:true, events})
   
 })
 
 //get gymnase/terrains/cmplx sportifs
-router.post('/get-poi', (req,res)=> {
-  //filters in body
+router.post('/get-places', async (req,res)=> {
+
+  const places = []
+
+  let {sportsSelected, distancePreference, userLocation} = req.body
+  //date and time might be added later to optimise filtered info
+  //once testing done, replace let by const
+  
+  //testing, will have to be removed once testing in Paris is done
+  userLocation.lat = 48.866667
+  userLocation.lon = 2.333333
+  //end
+
+  for (let i = 0; i < sportsSelected.length;i++) {
+
+    const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
+
+    placesFound.forEach(e => {
+
+      const {latitude,longitude} = e.location
+      const {_id,name,address,sports,futureEvents} = e
+
+      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === _id) === -1) {
+
+        const sportNames = []
+        sports.forEach(object => {
+          const index = sportIds.findIndex(item => item.id === object)
+          sportNames.push(sportIds[index].name)
+        })
+        
+        places.push({
+          placeId: _id,
+          name,
+          sports: sportNames.join(', '),
+          location: {latitude,longitude},
+          address,
+          futureEvents
+        })
+      }
+    })
+  }
+  res.json({result:true, places})
 
 })
 
@@ -25,11 +102,11 @@ router.post('/get-shops', (req,res) => {
 
 })
 
-//swipe
-router.get('/get-users', async function(req,res){
+//swipe, load users corresponding to distance preference and sport choice
+router.get('/get-users', async function (req,res) {
+  //filters in query >> ie distance preferences
   const listUsers = await userModel.find()
   res.json(listUsers)
-
 
 })
 
@@ -42,37 +119,6 @@ router.post('/like', (req,res)=> {
 //swipe
 router.post('/dislike', (req,res)=> {
   
-})
-
-
-//COMMUNITY
-// list d'amis, recherche user, and start conversation
-
-//generer la liste d'amis 
-router.post('/get-friends',(req,res) => {
-  //fetch friend list and conversations history from db
-})
-
-//ET l'historique de conversations
-router.post('/get-conversations-history', (req,res) => {
-
-})
-
-router.post('/search-user', (req,res) => {
-
-})
-
-router.post('/add-friend', (req,res) => {
-
-})
-
-//load conversation only when entering it
-router.post('/get-messages', (req,res) => {
-  //load conv with conv ID and user token for further security
-})
-
-router.post('/save-messages', (req,res) => {
-  //used in parallel of socket io route
 })
 
 

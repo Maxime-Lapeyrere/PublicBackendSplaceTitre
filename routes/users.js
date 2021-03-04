@@ -5,6 +5,14 @@ const uid2 = require('uid2')
 const bcrypt = require('bcrypt')
 const fileUpload = require('express-fileupload')
 const fs = require('fs')
+const uniqid = require('uniqid')
+
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+  cloud_name: "splace", 
+  api_key: "556322414353259", 
+  api_secret: "F44dnfebUjDfuqNjjJ_AzdVF3IY"
+})
 
 const UserModel = require('./db/UserModel')
 
@@ -116,11 +124,38 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/edit-photo', (req,res) => {
-  //body : form-data, get the photo data via fileupload
-  //save photo data to /tmp with FS (method .mv())
-  //upload photo to cloudinary
-  //if success, delete photo with FS method unlinkSync and res json the url >> save the url to DB
+router.put('/upload-profile-picture', (req,res) => {
+
+  //body : user token and file (if possible)
+
+  const path = './tmp/'+uniqid()+'.jpg'
+  await req.files.photo.mv(path, (err) => {
+    if (err) {
+      res.json({result: false, error: "Issue copying photo to /tmp folder"})
+      return
+    }
+  })
+
+  try {
+    await cloudinary.uploader.upload(path, {folder: "UserPictureProfile"},async (error, response) => {
+      if (error) {
+        fs.unlinkSync(path)
+        res.json({result: false, error: "Issue uploading photo to cloudinary"})
+      } else {
+        fs.unlinkSync(path)
+
+        const user = await UserModel.findOne({connectionToken: req.body.token})
+        user.profilePicture = response.secure_url
+        await user.save()
+
+        res.json({result: true})
+      }
+    })
+  } catch (error) {
+    console.log("in catch block")
+    console.log(error)
+  }
+
 })
 
 router.post('/get-my-events', (req,res) => {
