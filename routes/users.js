@@ -219,4 +219,34 @@ router.post('/get-preferences', async (req,res) => {
 
 })
 
+router.post('/save-preferences', async (req,res) => {
+  const {token} = req.body
+  const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = req.body.preferences
+
+  const user = await UserModel.findOne({connectionToken: token})
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+    user.favoriteSports = favoriteSports
+    user.favoritePlaces = favoritePlaces
+    user.club = club
+    user.birthday = birthday
+    user.bio = bio
+    user.gender = gender
+    user.handiSport = handiSport
+    user.country= country
+    user.language=language
+    user.profilePicture=profilePicture
+    user.premium = premium
+    user.distanceSearch = distanceSearch
+    user.genderSearch = genderSearch
+
+    await user.save()
+    res.json({result:true, message="Préférence enregistrée."})
+
+})
+
 module.exports = router;
