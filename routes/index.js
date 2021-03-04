@@ -15,7 +15,7 @@ router.post('/get-events', async (req,res)=> {
 
   const events = []
 
-  let {sportsSelected, distancePreference, userLocation} = req.body
+  let {sportsSelected, distancePreference, userLocation, isOnMap} = req.body
   //date and time might be added later to optimise filtered info
   //once testing done, replace let by const
 
@@ -26,25 +26,46 @@ router.post('/get-events', async (req,res)=> {
 
   for (let i = 0; i < sportsSelected.length;i++) {
 
-    const eventsFound = await EventModel.find({sport: sportsSelected[i].id}).populate('place').exec()
+    const eventsFound = isOnMap ? await EventModel.find({sport: sportsSelected[i].id}) : await EventModel.find({sport: sportsSelected[i].id}).populate('places').exec()
 
-    eventsFound.forEach(e => {
-      if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.place?.location?.latitude, e.place?.location?.longitude) <= distancePreference) {
-        events.push({
-          title: e.title,
-          address: e.address,
-          sport: e.sport ? e.sport : null,
-          sportName: e.sportName ? e.sportName : null,
-          placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
-          placeName: e.place.name,
-          time: e.time,
-          handiSport: e.handiSport,
-          mix: e.mix,
-          sportImage: e.sportImage? e.sportImage : null,
-          eventId: e._id
-        })
-      }
-    })
+    if (isOnMap) {
+      eventsFound.forEach(e => {
+        if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon) <= distancePreference && !e.place) {
+          events.push({
+            title: e.title,
+            address: e.address,
+            sport: e.sport ? e.sport : null,
+            sportName: e.sportName ? e.sportName : null,
+            placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
+            placeName: e.place.name,
+            time: e.time,
+            handiSport: e.handiSport,
+            mix: e.mix,
+            sportImage: e.sportImage? e.sportImage : null,
+            eventId: e._id
+          })
+        }
+      })
+    } else {
+      eventsFound.forEach(e => {
+        if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon) <= distancePreference) {
+          events.push({
+            title: e.title,
+            address: e.address,
+            sport: e.sport ? e.sport : null,
+            sportName: e.sportName ? e.sportName : null,
+            placeLocation: {lat:e.place.location.latitude,lon: e.place.location.longitude},
+            placeName: e.place.name,
+            time: e.time,
+            handiSport: e.handiSport,
+            mix: e.mix,
+            sportImage: e.sportImage? e.sportImage : null,
+            eventId: e._id
+          })
+        }
+      })
+    }
+    
   }
   res.json({result:true, events})
   
@@ -66,12 +87,12 @@ router.post('/get-places', async (req,res)=> {
 
   for (let i = 0; i < sportsSelected.length;i++) {
 
-    const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}) //will have to add .populate('events').exec() once we've optimised places db fulfilling
+    const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}).populate('events').exec()
 
     placesFound.forEach(e => {
 
       const {latitude,longitude} = e.location
-      const {_id,name,address,sports,futureEvents} = e
+      const {_id,name,address,sports,events} = e
 
       if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude) <= distancePreference && places.findIndex(o => o.placeId === _id) === -1) {
 
@@ -87,7 +108,7 @@ router.post('/get-places', async (req,res)=> {
           sports: sportNames.join(', '),
           location: {latitude,longitude},
           address,
-          futureEvents
+          events
         })
       }
     })

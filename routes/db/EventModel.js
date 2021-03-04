@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema({
     sportName: String,
     sportImage: String,
     place: {type: mongoose.Schema.Types.ObjectId, ref: 'places'},
+    location: {lat: Number, lon: Number},
     time: Date,
     level : Number,
     handiSport: Boolean,

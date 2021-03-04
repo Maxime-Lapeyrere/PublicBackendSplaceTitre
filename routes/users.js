@@ -37,7 +37,7 @@ const checkPasswordStrength = (password) => {
 //signup route
 router.post('/sign-up', async (req,res) => {
 
-  const {username, email, password, favoriteSports, bio, age, gender, handiSport, country, phoneNumber, profilePicture} = req.body
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -72,7 +72,7 @@ router.post('/sign-up', async (req,res) => {
       username,
       email,
       password: hash,
-      age,
+      birthday,
       favoriteSports,
       bio,
       gender,
@@ -185,6 +185,33 @@ router.post('/get-my-events', async (req,res) => {
     })
   })
   res.json({result:true, events})
+
+})
+
+router.post('/get-preferences', async (req,res) => {
+
+  const {token} = req.body
+
+  const user = await UserModel.findOne({connectionToken: token})
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+  const {favoriteSports, favoritePlaces, club,age,bio,gender,handiSport,country,language,profilePicture,premium} = user
+  res.json({result: true, preferences: {
+    favoriteSports,
+    favoritePlaces,
+    club,
+    birthday,
+    bio,
+    gender,
+    handiSport,
+    country,
+    language,
+    profilePicture,
+    premium
+  }})
 
 })
 

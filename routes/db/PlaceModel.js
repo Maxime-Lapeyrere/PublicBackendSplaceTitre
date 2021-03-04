@@ -15,7 +15,7 @@ const placeSchema = new mongoose.Schema({
     contact: [String],
     covering: String,
     icons: [String],
-    futureEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}]
+    events: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}]
 })
 
 const PlaceModel = mongoose.model('places', placeSchema)
