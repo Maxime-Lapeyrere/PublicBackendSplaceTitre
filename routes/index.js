@@ -3,6 +3,8 @@ var router = express.Router();
 var userModel = require('./db/UserModel')
 var eventModel = require('./db/EventModel')
 
+const request = require('async-request')
+
 const EventModel = require('./db/EventModel')
 const PlaceModel = require('./db/PlaceModel')
 
@@ -139,6 +141,22 @@ router.post('/like', (req,res)=> {
 
 //swipe
 router.post('/dislike', (req,res)=> {
+  
+})
+
+//get address from custom place while creating an event
+router.post('/get-address-from-custom', async (req,res) => {
+
+  const {latitude, longitude} = req.body
+
+  const reverseGeo = await request(`https://api-adresse.data.gouv.fr/reverse/?lon=${longitude}&lat=${latitude}`)
+  const reverseGeoJSON = JSON.parse(reverseGeo.body)
+
+  if (reverseGeoJSON) {
+    res.json({result: true, address: reverseGeoJSON.features[0]?.properties.label})
+  } else {
+    res.json({result:false, message: "Un problème est survenu lors de la recherche de l'adresse."})
+  }
   
 })
 
