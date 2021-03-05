@@ -245,7 +245,7 @@ router.post('/save-preferences', async (req,res) => {
     user.genderSearch = genderSearch
 
     await user.save()
-    res.json({result:true, message="Préférence enregistrée."})
+    res.json({result:true, message:"Préférence enregistrée."})
 
 })
 
