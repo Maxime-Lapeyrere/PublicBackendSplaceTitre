@@ -201,6 +201,7 @@ router.post('/get-preferences', async (req,res) => {
     return
   }
   const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = user
+  
   res.json({result: true, preferences: {
     favoriteSports,
     favoritePlaces,
@@ -220,6 +221,7 @@ router.post('/get-preferences', async (req,res) => {
 })
 
 router.post('/save-preferences', async (req,res) => {
+
   const {token} = req.body
   const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = req.body.preferences
 
