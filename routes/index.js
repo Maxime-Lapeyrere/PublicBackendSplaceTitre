@@ -24,7 +24,7 @@ router.post('/get-events', async (req,res)=> {
   userLocation.lon = 2.333333
   //end
 
-  for (let i = 0; i < sportsSelected.length;i++) {
+  for (let i = 0; i < sportsSelected?.length;i++) {
 
     const eventsFound = isOnMap ? await EventModel.find({sport: sportsSelected[i].id}) : await EventModel.find({sport: sportsSelected[i].id}).populate('places').exec()
 
@@ -42,7 +42,8 @@ router.post('/get-events', async (req,res)=> {
             handiSport: e.handiSport,
             mix: e.mix,
             sportImage: e.sportImage? e.sportImage : null,
-            eventId: e._id
+            eventId: e._id,
+            distance: getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon)
           })
         }
       })
@@ -60,7 +61,8 @@ router.post('/get-events', async (req,res)=> {
             handiSport: e.handiSport,
             mix: e.mix,
             sportImage: e.sportImage? e.sportImage : null,
-            eventId: e._id
+            eventId: e._id,
+            distance: getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon)
           })
         }
       })
@@ -85,7 +87,7 @@ router.post('/get-places', async (req,res)=> {
   userLocation.lon = 2.333333
   //end
 
-  for (let i = 0; i < sportsSelected.length;i++) {
+  for (let i = 0; i < sportsSelected?.length;i++) {
 
     const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}).populate('events').exec()
 
@@ -108,11 +110,13 @@ router.post('/get-places', async (req,res)=> {
           sports: sportNames.join(', '),
           location: {latitude,longitude},
           address,
-          events
+          events,
+          distance: getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon,latitude , longitude)
         })
       }
     })
   }
+  places.sort((a,b) => a.distance - b.distance)
   res.json({result:true, places})
 
 })
@@ -149,7 +153,7 @@ router.post('/get-address-from-custom', async (req,res) => {
   const reverseGeoJSON = JSON.parse(reverseGeo.body)
 
   if (reverseGeoJSON) {
-    res.json({result: true, address: reverseGeoJSON.features[0]?.properties.label})
+    res.json({result: true, address: reverseGeoJSON?.features[0]?.properties.label})
   } else {
     res.json({result:false, message: "Un problème est survenu lors de la recherche de l'adresse."})
   }
