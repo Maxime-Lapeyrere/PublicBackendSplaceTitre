@@ -201,7 +201,7 @@ router.post('/get-preferences', async (req,res) => {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
-  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = user
+  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange} = user
   
   res.json({result: true, preferences: {
     favoriteSports,
