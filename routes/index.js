@@ -19,6 +19,11 @@ router.post('/get-events', async (req,res)=> {
   //date and time might be added later to optimise filtered info
   //once testing done, replace let by const
 
+  if (!sportsSelected || !distancePreference || !userLocation) {
+    res.json({result: false, message: "Missing info"})
+    return
+  }
+
   //testing, will have to be removed once testing in Paris is done
   userLocation.lat = 48.866667
   userLocation.lon = 2.333333
@@ -129,8 +134,10 @@ router.post('/get-shops', (req,res) => {
 })
 
 //swipe, load users corresponding to distance preference and sport choice
-router.get('/get-users', (req,res) => {
+router.get('/get-users', async (req,res) => {
   //filters in query >> ie distance preferences
+
+  let {sportsSelected, distancePreference, userLocation, ageRange, genderSearch} = req.body
 
 })
 

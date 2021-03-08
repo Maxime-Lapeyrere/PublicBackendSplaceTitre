@@ -8,13 +8,18 @@ const favoriteSportSchema = new mongoose.Schema({
     icon: String
 })
 
+const genderSearchSchema = new mongoose.Schema({
+    name: String,
+    isChosen: Boolean
+})
+
 const userSchema = new mongoose.Schema({
     username: {type: String, unique: true},
     email: {type: String, unique: true},
     password: String,
     birthday: Date,
     gender: String,
-    genderSearch: String,
+    genderSearch: [genderSearchSchema],
     distanceSearch: Number, // in km
     physicalCondition: Number,
     phoneNumber: String,
