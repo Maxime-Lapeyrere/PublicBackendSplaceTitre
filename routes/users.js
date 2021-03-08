@@ -239,16 +239,15 @@ router.post('/save-preferences', async (req,res) => {
     user.bio = bio
     user.gender = gender
     user.handiSport = handiSport
-    user.country= country
-    user.language=language
-    user.profilePicture=profilePicture
+    user.country = country
+    user.language = language
+    user.profilePicture = profilePicture
     user.premium = premium
     user.distanceSearch = distanceSearch
     user.genderSearch = genderSearch
 
     await user.save()
     res.json({result:true, message:"Préférence enregistrée."})
-
 })
 
 module.exports = router;
