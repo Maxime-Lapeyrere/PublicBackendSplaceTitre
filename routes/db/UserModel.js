@@ -13,6 +13,11 @@ const genderSearchSchema = new mongoose.Schema({
     isChosen: Boolean
 })
 
+const timeAvaiSchema = new mongoose.Schema({
+    time: String,
+    isAvailable: Boolean
+})
+
 const userSchema = new mongoose.Schema({
     username: {type: String, unique: true},
     email: {type: String, unique: true},
@@ -22,6 +27,7 @@ const userSchema = new mongoose.Schema({
     genderSearch: [genderSearchSchema],
     distanceSearch: Number, // in km
     physicalCondition: Number,
+    timeAvailability: [timeAvaiSchema],
     phoneNumber: String,
     handiSport: Boolean,
     geolocation: {
