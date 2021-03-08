@@ -37,7 +37,7 @@ const checkPasswordStrength = (password) => {
 //signup route
 router.post('/sign-up', async (req,res) => {
 
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, distanceSearch, genderSearch} = req.body
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -89,8 +89,9 @@ router.post('/sign-up', async (req,res) => {
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
-      genderSearch,
-      distanceSearch, // in km
+      genderSearch: "mix",
+      distanceSearch: 5, // in km
+      ageRange: [18,40] 
     })
 
     const savedUser = await newUser.save()
@@ -200,7 +201,7 @@ router.post('/get-preferences', async (req,res) => {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
-  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = user
+  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange} = user
   
   res.json({result: true, preferences: {
     favoriteSports,
@@ -215,7 +216,8 @@ router.post('/get-preferences', async (req,res) => {
     profilePicture,
     premium,
     distanceSearch, 
-    genderSearch
+    genderSearch,
+    ageRange
   }})
 
 })
@@ -223,7 +225,7 @@ router.post('/get-preferences', async (req,res) => {
 router.post('/save-preferences', async (req,res) => {
 
   const {token} = req.body
-  const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch} = req.body.preferences
+  const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange} = req.body.preferences
 
   const user = await UserModel.findOne({connectionToken: token})
 
@@ -245,6 +247,7 @@ router.post('/save-preferences', async (req,res) => {
     user.premium = premium
     user.distanceSearch = distanceSearch
     user.genderSearch = genderSearch
+    user.ageRange = ageRange
 
     await user.save()
     res.json({result:true, message:"Préférence enregistrée."})
