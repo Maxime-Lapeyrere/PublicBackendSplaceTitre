@@ -1,33 +1,21 @@
 const mongoose = require('mongoose');
 
-const favoriteSportSchema = new mongoose.Schema({
-    name: String,
-    id: String,
-    isPicked: Boolean,
-    isChosen: Boolean,
-    icon: String
-})
-
-const genderSearchSchema = new mongoose.Schema({
-    name: String,
-    isChosen: Boolean
-})
-
-const timeAvaiSchema = new mongoose.Schema({
-    time: String,
-    isAvailable: Boolean
-})
-
 const userSchema = new mongoose.Schema({
     username: {type: String, unique: true},
     email: {type: String, unique: true},
     password: String,
     birthday: Date,
     gender: String,
-    genderSearch: [genderSearchSchema],
+    genderSearch: [{
+        name: String,
+        isChosen: Boolean
+    }],
     distanceSearch: Number, // in km
     physicalCondition: Number,
-    timeAvailability: [timeAvaiSchema],
+    timeAvailability: [{
+        time: String,
+        isAvailable: Boolean
+    }],
     phoneNumber: String,
     handiSport: Boolean,
     geolocation: {
@@ -45,7 +33,13 @@ const userSchema = new mongoose.Schema({
     joinedEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}], //historique d'events et events à venir ici, traitement sera fait sur le back ou sur le front
     country: String,
     blockedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
-    favoriteSports: [favoriteSportSchema],
+    favoriteSports: [{
+        name: String,
+        id: String,
+        isPicked: Boolean,
+        isChosen: Boolean,
+        icon: String
+    }],
     favoritePlaces: [{type: mongoose.Schema.Types.ObjectId, ref: 'places'}],
     club: [String], //(?)
     language: String,
