@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var userModel = require('./db/UserModel')
+var eventModel = require('./db/EventModel')
 
 const request = require('async-request')
 const requestSync = require('sync-request')
@@ -179,9 +181,11 @@ router.post('/get-users', async (req,res) => {
           distance: distanceFromUser,
           city: reverseGeoJSON.features[0]?.properties.city,
           jobTitle: user.jobTitle ? user.jobTitle : null,
+          education: user.education? user.education : null,
           favoriteSports: user.favoriteSports,
           bio: user.bio,
-          timeAvailable : user.timeAvailable
+          timeAvailable : user.timeAvailable,
+          userId: user._id
         })
       }
     })
@@ -194,13 +198,24 @@ router.post('/get-users', async (req,res) => {
 
 //swipe
 router.post('/like', (req,res)=> {
+  let {likedId, token} = req.body
+  console.log(req.body)
   //check if it's an event or an user
   //check if it's an invitation to an event (replace the 'join-event' route from the event family)
 })
 
 //swipe
 router.post('/dislike', (req,res)=> {
-  
+  let {likedId, token} = req.body
+  console.log(req.body)
+})
+router.post('/join-event', (req,res)=> {
+  let {eventId, token} = req.body
+  console.log(req.body)
+})
+router.post('/decline-event', (req,res)=> {
+  let {eventId, token} = req.body
+  console.log(req.body)
 })
 
 //get address from custom place while creating an event

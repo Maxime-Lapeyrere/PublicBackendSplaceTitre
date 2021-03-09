@@ -15,7 +15,8 @@ const eventSchema = new mongoose.Schema({
     level : Number,
     handiSport: Boolean,
     mix: Boolean,
-    privateEvent: Boolean
+    privateEvent: Boolean,
+    sportImage: String
 })
 
 const EventModel = mongoose.model('events', eventSchema)
