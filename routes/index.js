@@ -4,11 +4,13 @@ var userModel = require('./db/UserModel')
 var eventModel = require('./db/EventModel')
 
 const request = require('async-request')
+const requestSync = require('sync-request')
 
 const EventModel = require('./db/EventModel')
 const PlaceModel = require('./db/PlaceModel')
 
-const {fixDate, getDistanceFromLatLonInKm, sportIds} = require('./helper_func')
+const {fixDate, getDistanceFromLatLonInKm, sportIds, calculateAge} = require('./helper_func');
+const UserModel = require('./db/UserModel');
 
 // MAP & SWIPE ROUTES
 
@@ -21,6 +23,11 @@ router.post('/get-events', async (req,res)=> {
   //date and time might be added later to optimise filtered info
   //once testing done, replace let by const
 
+  if (!sportsSelected || !distancePreference) {
+    res.json({result: false, message: "Missing info"})
+    return
+  }
+
   //testing, will have to be removed once testing in Paris is done
   userLocation.lat = 48.866667
   userLocation.lon = 2.333333
@@ -32,7 +39,8 @@ router.post('/get-events', async (req,res)=> {
 
     if (isOnMap) {
       eventsFound.forEach(e => {
-        if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon) <= distancePreference && !e.place) {
+        if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon) <= distancePreference 
+        && !e.place) {
           events.push({
             title: e.title,
             address: e.address,
@@ -131,22 +139,83 @@ router.post('/get-shops', (req,res) => {
 })
 
 //swipe, load users corresponding to distance preference and sport choice
-router.get('/get-users', async function (req,res) {
-  //filters in query >> ie distance preferences
-  const listUsers = await userModel.find()
-  res.json(listUsers)
+router.post('/get-users', async (req,res) => {
+
+  const users = []
+
+  let {sportsSelected, distancePreference, userLocation, ageRange, genderSelected} = req.body
+
+
+  if (!sportsSelected || !distancePreference || !ageRange || !genderSelected) {
+    res.json({result: false, message: "Missing info"})
+    return
+  }
+
+  //testing, will have to be removed once testing in Paris is done
+  userLocation.lat = 48.866667
+  userLocation.lon = 2.333333
+  //end
+
+  const date1 = new Date()
+  date1.setFullYear(date1.getFullYear() - ageRange[0])
+  const date2 = new Date()
+  date2.setFullYear(date2.getFullYear() - ageRange[1])
+
+  const usersFound = await UserModel.find({birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
+
+  console.log("initial users finding")
+  console.log(usersFound)
+  
+  sportsSelected.forEach(sport => {
+    usersFound.forEach(user => {
+      const distanceFromUser = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, user.geolocation.latitude, user.geolocation.longitude)
+      if (distanceFromUser <= distancePreference 
+      && user.favoriteSports.find(fav => fav.id === sport.id)) {
+
+        const reverseGeo = requestSync('GET',`https://api-adresse.data.gouv.fr/reverse/?lon=${user.geolocation.longitude}&lat=${user.geolocation.latitude}`)
+        const reverseGeoJSON = JSON.parse(reverseGeo.body)
+
+        users.push({
+          name: user.username,
+          age: calculateAge(user.birthday),
+          distance: distanceFromUser,
+          city: reverseGeoJSON.features[0]?.properties.city,
+          jobTitle: user.jobTitle ? user.jobTitle : null,
+          education: user.education? user.education : null,
+          favoriteSports: user.favoriteSports,
+          bio: user.bio,
+          timeAvailable : user.timeAvailable,
+          userId: user._id
+        })
+      }
+    })
+  })
+  res.json({result:true, users})
+ 
+
 
 })
 
 //swipe
 router.post('/like', (req,res)=> {
+  let {likedId, token} = req.body
+  console.log(req.body)
   //check if it's an event or an user
   //check if it's an invitation to an event (replace the 'join-event' route from the event family)
 })
 
 //swipe
 router.post('/dislike', (req,res)=> {
-  
+  let {likedId, token} = req.body
+  console.log(req.body)
+})
+router.post('/join-event', (req,res)=> {
+  let {eventId, token} = req.body
+  console.log(req.body)
+})
+router.post('/decline-event', (req,res)=> {
+  let {eventId, token} = req.body
+  console.log(req.body)
 })
 
 //get address from custom place while creating an event
