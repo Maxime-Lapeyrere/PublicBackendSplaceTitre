@@ -30,7 +30,7 @@ router.post('/search-users', async (req, res) => {
 
 router.post('/add-friend', (req, res) => {
 
-  
+
 
 })
 
@@ -39,18 +39,44 @@ router.post('/get-messages', (req, res) => {
   //load conv with conv ID and user token for further security
 })
 
-router.post('/save-messages', (req, res) => {
+router.post('/save-messages', async (req, res) => {
   //used in parallel of socket io route
-  //if conv id n'existe pas : creaete a new conv document, save message
+  //if conv id n'existe pas : create a new conv document, save message
+  //body : conv id, messages data
 
+  const {convID, messageData, userID} = req.body
+  
+  let conv = await ConvModel.findById(convID)
+  const user = await UserModel.findById(userID)
 
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+  if (!conv) {
+    const newConv = new ConvModel({
+      name: "A Conv Name",
+      users: [userID],
+      messages: [messageData],
+      lastMessage: messageData,
+      group : false
+    })
+    conv = await newConv.save()
+    user.conversations.push(conv._id)
+    await user.save()
+  } else {
+    conv.messages.push(messageData)
+    await newConv.save()
+  }
+  res.json({result:true, convID: conv._id})
 })
 
 
 module.exports = router;
 
 // route get conv history
-// route get laod messages
+// route get load messages
 // route save messages
 // creer une conv avec no friend
 // send 1st message

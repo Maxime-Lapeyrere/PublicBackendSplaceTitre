@@ -76,7 +76,7 @@ router.post('/sign-up', async (req,res) => {
       username,
       email,
       password: hash,
-      birthday: birthday? birthday : birthdate,
+      birthday:Date.parse(birthday),
       favoriteSports,
       bio,
       gender,
