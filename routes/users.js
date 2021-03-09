@@ -87,7 +87,7 @@ router.post('/sign-up', async (req,res) => {
         },
         {
           name: "Homme",
-          isChosen: false
+          isChosen: true
         },
         {
           name: "Autre",
@@ -95,7 +95,7 @@ router.post('/sign-up', async (req,res) => {
         },
         {
           name: "Mixte",
-          isChosen: true
+          isChosen: false
         }
       ],
       handiSport,
