@@ -37,7 +37,7 @@ const checkPasswordStrength = (password) => {
 //signup route
 router.post('/sign-up', async (req,res) => {
 
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, geolocation} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -68,20 +68,42 @@ router.post('/sign-up', async (req,res) => {
   try {
     const hash = bcrypt.hashSync(password, 10)
 
+    const birthdate = new Date()
+    birthdate.setFullYear(1996,8,23)
+    //TBC
+
     const newUser = new UserModel({
       username,
       email,
       password: hash,
-      birthday,
+      birthday: birthday? birthday : birthdate,
       favoriteSports,
       bio,
       gender,
+      genderSearch: [
+        {
+          name: "Femme",
+          isChosen: false
+        },
+        {
+          name: "Homme",
+          isChosen: false
+        },
+        {
+          name: "Autre",
+          isChosen: false
+        },
+        {
+          name: "Mixte",
+          isChosen: true
+        }
+      ],
       handiSport,
       country,
       language: null,
       geolocation: {
-        latitude: null,
-        longitude: null
+        latitude: geolocation.latitude ? geolocation.latitude : null,
+        longitude: geolocation.longitude ? geolocation.longitude : null
       },
       phoneNumber,
       premium: false,
@@ -89,9 +111,23 @@ router.post('/sign-up', async (req,res) => {
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
-      genderSearch: "mix",
       distanceSearch: 5, // in km
-      ageRange: [18,40] 
+      ageRange: [18,40] ,
+      physicalCondition: null,
+      timeAvailable: [
+        {
+          time: "morning",
+          isAvailable: false
+        },
+        {
+          time: "noon",
+          isAvailable: false
+        },
+        {
+          time: "evening",
+          isAvailable: true
+        }
+      ]
     })
 
     const savedUser = await newUser.save()
@@ -201,7 +237,7 @@ router.post('/get-preferences', async (req,res) => {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
-  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange} = user
+  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = user
   
   res.json({result: true, preferences: {
     favoriteSports,
@@ -217,7 +253,8 @@ router.post('/get-preferences', async (req,res) => {
     premium,
     distanceSearch, 
     genderSearch,
-    ageRange
+    ageRange,
+    timeAvailable
   }})
 
 })
@@ -225,7 +262,7 @@ router.post('/get-preferences', async (req,res) => {
 router.post('/save-preferences', async (req,res) => {
 
   const {token} = req.body
-  const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange} = req.body.preferences
+  const {favoriteSports,favoritePlaces,club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = req.body.preferences
 
   const user = await UserModel.findOne({connectionToken: token})
 
@@ -248,6 +285,7 @@ router.post('/save-preferences', async (req,res) => {
     user.distanceSearch = distanceSearch
     user.genderSearch = genderSearch
     user.ageRange = ageRange
+    user.timeAvailable = timeAvailable
 
     await user.save()
     res.json({result:true, message:"Préférence enregistrée."})
