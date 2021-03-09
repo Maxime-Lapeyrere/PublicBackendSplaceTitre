@@ -76,7 +76,7 @@ router.post('/sign-up', async (req,res) => {
       username,
       email,
       password: hash,
-      birthday: birthday? birthday : birthdate,
+      birthday:Date.parse(birthday),
       favoriteSports,
       bio,
       gender,
@@ -87,7 +87,7 @@ router.post('/sign-up', async (req,res) => {
         },
         {
           name: "Homme",
-          isChosen: false
+          isChosen: true
         },
         {
           name: "Autre",
@@ -95,7 +95,7 @@ router.post('/sign-up', async (req,res) => {
         },
         {
           name: "Mixte",
-          isChosen: true
+          isChosen: false
         }
       ],
       handiSport,
