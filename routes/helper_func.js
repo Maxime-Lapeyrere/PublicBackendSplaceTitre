@@ -89,6 +89,12 @@ const sportIds = [
     }
 ]
 
+const calculateAge = (birthday) => { // birthday is a date
+    var ageDifMs = Date.now() - birthday.getTime();
+    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
 //temporary helper, testing purposes, might be used on front to transform the date and time to a full date
 const fixDate = (date, time) => {
     if (typeof date != "string" || typeof time != "string") {
@@ -121,4 +127,4 @@ const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2) => {
     return deg * (Math.PI/180)
   }
 
-  module.exports = {sportIds, fixDate,getDistanceFromLatLonInKm}
+  module.exports = {sportIds, fixDate,getDistanceFromLatLonInKm, calculateAge}
