@@ -37,6 +37,8 @@ const checkPasswordStrength = (password) => {
 //signup route
 router.post('/sign-up', async (req,res) => {
 
+  console.log(req.body);
+
   const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
@@ -72,7 +74,7 @@ router.post('/sign-up', async (req,res) => {
       username,
       email,
       password: hash,
-      birthday,
+      birthday:Date.parse(birthday),
       favoriteSports,
       bio,
       gender,
