@@ -35,8 +35,21 @@ router.post('/add-friend', (req, res) => {
 })
 
 //load conversation only when entering it
-router.post('/get-messages', (req, res) => {
+router.post('/get-messages', async (req, res) => {
   //load conv with conv ID and user token for further security
+
+  const {convID, token} = req.body
+
+  const user = await UserModel.findOne({connectionToken: token})
+  const conv = await ConvModel.findById(convID)
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+  res.json({result:true, conversation: conv})
+
 })
 
 router.post('/save-messages', async (req, res) => {
@@ -44,10 +57,10 @@ router.post('/save-messages', async (req, res) => {
   //if conv id n'existe pas : create a new conv document, save message
   //body : conv id, messages data
 
-  const {convID, messageData, userID} = req.body
+  const {convID, messageData, token} = req.body
   
-  let conv = await ConvModel.findById(convID)
-  const user = await UserModel.findById(userID)
+  let conv = convID ? await ConvModel.findById(convID) : null
+  const user = await UserModel.findOne({connectionToken: token})
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
@@ -57,7 +70,7 @@ router.post('/save-messages', async (req, res) => {
   if (!conv) {
     const newConv = new ConvModel({
       name: "A Conv Name",
-      users: [userID],
+      users: [user._id],
       messages: [messageData],
       lastMessage: messageData,
       group : false
