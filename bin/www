@@ -36,7 +36,7 @@ var io = require('socket.io')(server);
 io.on('connection', function(socket){
   console.log('User connected =>', socket.conn.remoteAddress);
   socket.on('sendMessage', function(messageData) {
-    console.log('Message received =>', messageData);
+    console.log('Message received =>',(messageData));
     io.emit('sendMessageToAll', messageData);
   });
 });
