@@ -22,11 +22,15 @@ router.post('/get-conversations-history', async (req, res) => {
 
 })
 
-router.post('/search-users', (req, res) => {
+router.post('/search-users', async (req, res) => {
+
+
 
 })
 
 router.post('/add-friend', (req, res) => {
+
+  
 
 })
 
@@ -39,7 +43,7 @@ router.post('/save-messages', (req, res) => {
   //used in parallel of socket io route
   //if conv id n'existe pas : creaete a new conv document, save message
 
-  
+
 })
 
 
