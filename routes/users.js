@@ -36,8 +36,8 @@ const checkPasswordStrength = (password) => {
 
 //signup route
 router.post('/sign-up', async (req,res) => {
-
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, geolocation} = req.body
+console.log(req.body);
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -102,12 +102,12 @@ router.post('/sign-up', async (req,res) => {
       country,
       language: null,
       geolocation: {
-        latitude: geolocation.latitude ? geolocation.latitude : null,
-        longitude: geolocation.longitude ? geolocation.longitude : null
+        latitude: geolocation ? geolocation.latitude : null,
+        longitude: geolocation ? geolocation.longitude : null
       },
       phoneNumber,
       premium: false,
-      profilePicture,
+      profilePicture : null,
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
@@ -143,6 +143,8 @@ router.post('/sign-in', async (req,res) => {
 
   const {email, password} = req.body
 
+  console.log("sur la route sign in", req.body);
+
   const found = await UserModel.findOne({email})
   if (!found) {
     res.json({result: false, message: "L'email ou le mot de passe est incorrect."})
@@ -163,7 +165,7 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/upload-profile-picture', async (req,res) => {
+router.post('/upload-profile-picture', async (req,res) => {
 
   //body : user token and file (if possible)
 
@@ -173,7 +175,7 @@ router.put('/upload-profile-picture', async (req,res) => {
     return
   }
 
-  const path = './tmp/'+uniqid()+'.jpg'
+  const path = './tmp/'+uniqid()
   await req.files.photo.mv(path, (err) => {
     if (err) {
       res.json({result: false, message: "Un problème est survenu lors de la sauvegarde de votre photo."})
@@ -213,14 +215,19 @@ router.post('/get-my-events', async (req,res) => {
 
   const events = []
   user.joinedEvents.forEach(e => {
-    const {_id,participatingUsers,title,sportName,sportImage,time} = e
+    const {_id,participatingUsers,title,sportName,time,address,sport,placeName,handiSport,mix} = e
     events.push({
-      eventId: _id,
-      participatingUsers,
       title,
-      sportName,
-      sportImage,
-      time
+      address,
+      sport: sport ? sport : null,
+      sportName: sportName ? sportName : null,
+      placeName: placeName ? placeName : null,
+      time,
+      handiSport,
+      mix: mix,
+      participatingUsers,
+      eventId: _id,
+      distance: user.geolocation.latitude && user.geolocation.longitude ? getDistanceFromLatLonInKm(user.geolocation.latitude, user.geolocation.latitude, e.location.lat, e.location.lon) : 0
     })
   })
   res.json({result:true, events})
