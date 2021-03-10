@@ -210,7 +210,7 @@ router.post('/clear-friends-request-general', async (req,res) => {
     const {token} = req.body
 
     const user = await UserModel.findOne({connectionToken: token})
-    user.friendsRequestsGeneral = []
+    user.friendRequestsGeneral = []
     await user.save()
 
     res.json({result:true, message: "Friends request general cleared up."})
