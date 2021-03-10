@@ -34,6 +34,31 @@ router.post('/add-friend', (req, res) => {
 
 })
 
+router.post('/accept-friends-request', async (req,res) => {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.friendsList.push(targetUser._id)
+  targetUser.friendsList.push(requestingUser._id)
+
+  await requestingUser.save()
+  await targetUser.save()
+
+  res.json({result: true})
+
+})
+
 //load conversation only when entering it
 router.post('/get-messages', async (req, res) => {
   //load conv with conv ID and user token for further security
@@ -58,9 +83,21 @@ router.post('/save-messages', async (req, res) => {
   //body : conv id, messages data
 
   const {convID, messageData, token} = req.body
+
+  console.log("CONVID")
+  console.log(convID)
+
+  const realMessageData = {
+    text: messageData.text,
+    user: messageData.user,
+    createdAt: messageData.createdAt
+  }
   
   let conv = convID ? await ConvModel.findById(convID) : null
   const user = await UserModel.findOne({connectionToken: token})
+
+  console.log("CONV (IF FOUND)")
+  console.log(conv)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
@@ -68,20 +105,25 @@ router.post('/save-messages', async (req, res) => {
   }
 
   if (!conv) {
+    console.log("new conv")
     const newConv = new ConvModel({
       name: "A Conv Name",
       users: [user._id],
-      messages: [messageData],
-      lastMessage: messageData,
+      messages: [realMessageData],
+      lastMessage: realMessageData.text,
       group : false
     })
     conv = await newConv.save()
+    console.log(conv._id)
     user.conversations.push(conv._id)
     await user.save()
   } else {
-    conv.messages.push(messageData)
+    conv.messages.push(realMessageData)
+    console.log("existing conv")
+    console.log(conv._id)
     await newConv.save()
   }
+
   res.json({result:true, convID: conv._id})
 })
 
