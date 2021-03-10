@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');
+const request = require('sync-request')
 
 /**
  * Get port from environment and store in Express.
@@ -31,15 +32,38 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+////////////CHAT////////////
+
 var io = require('socket.io')(server);
 
-io.on('connection', function(socket){
+io.on('connection', function(socket) {
   console.log('User connected =>', socket.conn.remoteAddress);
-  socket.on('sendMessage', function(messageData) {
-    console.log('Message received =>',(messageData));
-    io.emit('sendMessageToAll', messageData);
+  socket.on('sendMessage', function(data) {
+    console.log('Message received =>',(data.message))
+
+    const res = request('POST','http://localhost:3000/community/save-messages', {
+      json: {token: data.token, convID: data.convID, messageData: data.message[0]}
+    })
+    console.log("raw res")
+    console.log(res)
+    const resJSON = JSON.parse(res.body)
+    console.log("json res")
+    console.log(resJSON)
+
+    if (resJSON.result) {
+      io.emit('sendMessageToAll', {message : data.message[0], convID: resJSON.convID})
+    } else {
+      data.message.text = "Erreur"
+      socket.emit('sendMessageToAll', {message : data.message[0], convID: resJSON.convID})
+    }
+
+    
   });
 });
+
+////////////END_CHAT////////////
+
+
 /**
  * Normalize a port into a number, string, or false.
  */
