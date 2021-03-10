@@ -30,6 +30,31 @@ router.post('/add-friend', (req, res) => {
 
 })
 
+router.post('/accept-friends-request', async (req,res) => {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.friendsList.push(targetUser._id)
+  targetUser.friendsList.push(requestingUser._id)
+
+  await requestingUser.save()
+  await targetUser.save()
+
+  res.json({result: true})
+
+})
+
 //load conversation only when entering it
 router.post('/get-messages', async (req, res) => {
   //load conv with conv ID and user token for further security

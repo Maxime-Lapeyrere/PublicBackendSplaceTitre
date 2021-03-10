@@ -212,8 +212,8 @@ router.post('/like', async (req,res)=> {
     return
   }
 
-  requestingUser.friendsRequestSent.push(targetUser._id)
-  targetUser.friendsRequestSwipe.push(requestingUser._id)
+  requestingUser.friendRequestsSent.push(targetUser._id)
+  targetUser.friendRequestsSwipe.push(requestingUser._id)
 
   await requestingUser.save()
   await targetUser.save()
@@ -240,31 +240,6 @@ router.post('/dislike', async (req,res)=> {
   requestingUser.swipedPeople.push(targetUser._id)
 
   await requestingUser.save()
-
-  res.json({result: true})
-
-})
-
-router.post('/accept-friends-request', async (req,res) => {
-
-  const {userID, token} = req.body // userID = targeted user, token = actual user using app
-
-  const requestingUser = await UserModel.findOne({connectionToken: token})
-  if (!requestingUser) {
-    res.json({result:false, message: "asking user not found"})
-    return
-  }
-  const targetUser = await UserModel.findById(userID)
-  if (!targetUser) {
-    res.json({result:false, message: "target user not found"})
-    return
-  }
-
-  requestingUser.friendsList.push(targetUser._id)
-  targetUser.friendsList.push(requestingUser._id)
-
-  await requestingUser.save()
-  await targetUser.save()
 
   res.json({result: true})
 
