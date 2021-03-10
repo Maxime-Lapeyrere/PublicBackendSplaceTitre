@@ -107,7 +107,7 @@ console.log(req.body);
       // },
       phoneNumber,
       premium: false,
-      profilePicture,
+      profilePicture: null,
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
@@ -165,7 +165,7 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/upload-profile-picture', async (req,res) => {
+router.post('/upload-profile-picture', async (req,res) => {
 
   //body : user token and file (if possible)
 
@@ -175,7 +175,7 @@ router.put('/upload-profile-picture', async (req,res) => {
     return
   }
 
-  const path = './tmp/'+uniqid()+'.jpg'
+  const path = './tmp/'+uniqid()
   await req.files.photo.mv(path, (err) => {
     if (err) {
       res.json({result: false, message: "Un problème est survenu lors de la sauvegarde de votre photo."})
