@@ -155,6 +155,7 @@ router.post('/sign-in', async (req,res) => {
   })
 
 })
+  
 
 //modif profil/preferences ( pas la photo de prof)
 router.put('/edit-profile', (req,res) => {
@@ -237,16 +238,19 @@ router.post('/get-my-events', async (req,res) => {
 router.post('/get-preferences', async (req,res) => {
 
   const {token} = req.body
+  console.log('token', token)
 
   const user = await UserModel.findOne({connectionToken: token})
+  console.log('user', user)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
-  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = user
+  const {username, favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = user
   
   res.json({result: true, preferences: {
+    username,
     favoriteSports,
     favoritePlaces,
     club,
