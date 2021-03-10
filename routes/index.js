@@ -148,7 +148,7 @@ router.post('/get-myevents', async (req,res)=> {
       })
     }
     
-  }
+  
   res.json({result:true, events})
   
 })
