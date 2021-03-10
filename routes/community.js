@@ -54,9 +54,21 @@ router.post('/save-messages', async (req, res) => {
   //body : conv id, messages data
 
   const {convID, messageData, token} = req.body
+
+  console.log("CONVID")
+  console.log(convID)
+
+  const realMessageData = {
+    text: messageData.text,
+    user: messageData.user,
+    createdAt: messageData.createdAt
+  }
   
   let conv = convID ? await ConvModel.findById(convID) : null
   const user = await UserModel.findOne({connectionToken: token})
+
+  console.log("CONV (IF FOUND)")
+  console.log(conv)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
@@ -64,20 +76,25 @@ router.post('/save-messages', async (req, res) => {
   }
 
   if (!conv) {
+    console.log("new conv")
     const newConv = new ConvModel({
       name: "A Conv Name",
       users: [user._id],
-      messages: [messageData],
-      lastMessage: messageData,
+      messages: [realMessageData],
+      lastMessage: realMessageData.text,
       group : false
     })
     conv = await newConv.save()
+    console.log(conv._id)
     user.conversations.push(conv._id)
     await user.save()
   } else {
-    conv.messages.push(messageData)
+    conv.messages.push(realMessageData)
+    console.log("existing conv")
+    console.log(conv._id)
     await newConv.save()
   }
+
   res.json({result:true, convID: conv._id})
 })
 

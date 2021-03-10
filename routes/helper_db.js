@@ -172,4 +172,15 @@ router.post('/fill-users-random-data', async (req,res) => {
 
 })
 
+router.post('/remove-conversations-history', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.conversations = []
+    await user.save()
+
+    res.json({result:true, message: "Conversation history cleared up."})
+})
+
 module.exports = router
