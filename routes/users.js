@@ -102,12 +102,12 @@ router.post('/sign-up', async (req,res) => {
       country,
       language: null,
       geolocation: {
-        latitude: geolocation.latitude ? geolocation.latitude : null,
-        longitude: geolocation.longitude ? geolocation.longitude : null
+        latitude: geolocation ? geolocation.latitude : null,
+        longitude: geolocation ? geolocation.longitude : null
       },
       phoneNumber,
       premium: false,
-      profilePicture,
+      profilePicture : null,
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
