@@ -1,3 +1,4 @@
+var fileUpload = require('express-fileupload');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -11,6 +12,7 @@ const helperRouter = require('./routes/helper_db')
 const communityRouter = require('./routes/community')
 
 var app = express();
+app.use(fileUpload());
 require('./routes/db/connect')
 
 // view engine setup
