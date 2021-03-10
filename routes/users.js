@@ -101,13 +101,13 @@ console.log(req.body);
       handiSport,
       country,
       language: null,
-      // geolocation: {
-      //   latitude: geolocation.latitude ? geolocation.latitude : null,
-      //   longitude: geolocation.longitude ? geolocation.longitude : null
-      // },
+      geolocation: {
+        latitude: geolocation ? geolocation.latitude : null,
+        longitude: geolocation ? geolocation.longitude : null
+      },
       phoneNumber,
       premium: false,
-      profilePicture: null,
+      profilePicture : null,
       connectionToken: uid2(64),
       resetToken: null,
       resetTokenExpirationDate: null,
@@ -215,14 +215,19 @@ router.post('/get-my-events', async (req,res) => {
 
   const events = []
   user.joinedEvents.forEach(e => {
-    const {_id,participatingUsers,title,sportName,sportImage,time} = e
+    const {_id,participatingUsers,title,sportName,time,address,sport,placeName,handiSport,mix} = e
     events.push({
-      eventId: _id,
-      participatingUsers,
       title,
-      sportName,
-      sportImage,
-      time
+      address,
+      sport: sport ? sport : null,
+      sportName: sportName ? sportName : null,
+      placeName: placeName ? placeName : null,
+      time,
+      handiSport,
+      mix: mix,
+      participatingUsers,
+      eventId: _id,
+      distance: user.geolocation.latitude && user.geolocation.longitude ? getDistanceFromLatLonInKm(user.geolocation.latitude, user.geolocation.latitude, e.location.lat, e.location.lon) : 0
     })
   })
   res.json({result:true, events})
