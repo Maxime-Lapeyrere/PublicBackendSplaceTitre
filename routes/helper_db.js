@@ -172,4 +172,59 @@ router.post('/fill-users-random-data', async (req,res) => {
 
 })
 
+router.post('/clear-conversations-history', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.conversations = []
+    await user.save()
+
+    res.json({result:true, message: "Conversation history cleared up."})
+})
+
+router.post('/clear-swiped-people', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.swipedPeople = []
+    await user.save()
+
+    res.json({result:true, message: "Swiped People cleared up."})
+})
+
+router.post('/clear-friends-request-swipe', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.friendRequestsSwipe = []
+    await user.save()
+
+    res.json({result:true, message: "Friends request swipe cleared up."})
+})
+
+router.post('/clear-friends-request-general', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.friendRequestsGeneral = []
+    await user.save()
+
+    res.json({result:true, message: "Friends request general cleared up."})
+})
+
+router.post('/clear-declined-events', async (req,res) => {
+
+    const {token} = req.body
+
+    const user = await UserModel.findOne({connectionToken: token})
+    user.declinedEvents = []
+    await user.save()
+
+    res.json({result:true, message: "Declined events cleared up."})
+})
+
 module.exports = router
