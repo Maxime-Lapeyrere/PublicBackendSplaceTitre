@@ -36,8 +36,8 @@ const checkPasswordStrength = (password) => {
 
 //signup route
 router.post('/sign-up', async (req,res) => {
-
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, geolocation} = req.body
+console.log(req.body);
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -101,10 +101,10 @@ router.post('/sign-up', async (req,res) => {
       handiSport,
       country,
       language: null,
-      geolocation: {
-        latitude: geolocation.latitude ? geolocation.latitude : null,
-        longitude: geolocation.longitude ? geolocation.longitude : null
-      },
+      // geolocation: {
+      //   latitude: geolocation.latitude ? geolocation.latitude : null,
+      //   longitude: geolocation.longitude ? geolocation.longitude : null
+      // },
       phoneNumber,
       premium: false,
       profilePicture: null,
@@ -142,6 +142,8 @@ router.post('/sign-up', async (req,res) => {
 router.post('/sign-in', async (req,res) => {
 
   const {email, password} = req.body
+
+  console.log("sur la route sign in", req.body);
 
   const found = await UserModel.findOne({email})
   if (!found) {
