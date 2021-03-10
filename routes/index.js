@@ -196,30 +196,126 @@ router.post('/get-users', async (req,res) => {
 
 })
 
-//swipe
-router.post('/like', (req,res)=> {
-  let {likedId, token} = req.body
-  console.log(req.body)
-  //check if it's an event or an user
-  //check if it's an invitation to an event (replace the 'join-event' route from the event family)
+//swipe people
+router.post('/like', async (req,res)=> {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+  
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.friendsRequestSent.push(targetUser._id)
+  targetUser.friendsRequestSwipe.push(requestingUser._id)
+
+  await requestingUser.save()
+  await targetUser.save()
+
+  res.json({result: true})
 })
 
-//swipe
-router.post('/dislike', (req,res)=> {
-  let {likedId, token} = req.body
-  console.log(req.body)
+//swipe people
+router.post('/dislike', async (req,res)=> {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+  
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.swipedPeople.push(targetUser._id)
+
+  await requestingUser.save()
+
+  res.json({result: true})
+
 })
+
+router.post('/accept-friends-request', async (req,res) => {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.friendsList.push(targetUser._id)
+  targetUser.friendsList.push(requestingUser._id)
+
+  await requestingUser.save()
+  await targetUser.save()
+
+  res.json({result: true})
+
+})
+
 router.post('/join-event', async (req,res)=> {
-  let {eventId, token} = req.body
-  const myUserId = await UserModel.find({connectionToken: req.body.token})
-  const eventsFound = await EventModel.find({sport: req.body.eventId})
-  eventsFound.participatingUsers = [...eventsFound.participatingUsers, req.body.eventId]
-   await eventsFound.save()
-  res.json({result:true, message:"Préférence enregistrée."})
+
+  const {eventId, token} = req.body
+
+  const user = await UserModel.findOne({connectionToken: token})
+  const eventFound = await EventModel.findById(eventId)
+
+  if (!user) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  if (!eventFound) {
+    res.json({result:false, message: "event not found"})
+    return
+  }
+
+  user.joinedEvents.push(eventFound._id)
+  eventFound.participatingUsers.push(user._id)
+
+  await user.save()
+  await eventFound.save()
+
+  res.json({result:true})
 })
-router.post('/decline-event', (req,res)=> {
-  let {eventId, token} = req.body
-  console.log(req.body)
+
+router.post('/decline-event', async (req,res)=> {
+
+  const {eventId, token} = req.body
+  
+  const user = await UserModel.findOne({connectionToken: token})
+  const eventFound = await EventModel.findById(eventId)
+
+  if (!user) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  if (!eventFound) {
+    res.json({result:false, message: "event not found"})
+    return
+  }
+
+  user.declinedEvents.push(eventFound._id)
+
+  await user.save()
+
+  res.json({result:true})
 })
 
 //get address from custom place while creating an event

@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
     swipedPeople: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     friendsRequestSwipe: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     friendsRequestGeneral: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
+    friendRequestSent: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'teams'}],
     profilePicture: String,
     bio: String,
@@ -34,6 +35,7 @@ const userSchema = new mongoose.Schema({
     jobTitle: String,
     education: String,
     joinedEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}], //historique d'events et events à venir ici, traitement sera fait sur le back ou sur le front
+    declinedEvents: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}],
     country: String,
     blockedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'users'}],
     favoriteSports: [{
