@@ -209,9 +209,13 @@ router.post('/dislike', (req,res)=> {
   let {likedId, token} = req.body
   console.log(req.body)
 })
-router.post('/join-event', (req,res)=> {
+router.post('/join-event', async (req,res)=> {
   let {eventId, token} = req.body
-  console.log(req.body)
+  const myUserId = await UserModel.find({connectionToken: req.body.token})
+  const eventsFound = await EventModel.find({sport: req.body.eventId})
+  eventsFound.participatingUsers = [...eventsFound.participatingUsers, req.body.eventId]
+   await eventsFound.save()
+  res.json({result:true, message:"Préférence enregistrée."})
 })
 router.post('/decline-event', (req,res)=> {
   let {eventId, token} = req.body
