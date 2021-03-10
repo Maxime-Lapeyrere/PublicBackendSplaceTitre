@@ -36,8 +36,8 @@ const checkPasswordStrength = (password) => {
 
 //signup route
 router.post('/sign-up', async (req,res) => {
-
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, geolocation} = req.body
+console.log(req.body);
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -143,6 +143,8 @@ router.post('/sign-in', async (req,res) => {
 
   const {email, password} = req.body
 
+  console.log("sur la route sign in", req.body);
+
   const found = await UserModel.findOne({email})
   if (!found) {
     res.json({result: false, message: "L'email ou le mot de passe est incorrect."})
@@ -164,7 +166,7 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/upload-profile-picture', async (req,res) => {
+router.post('/upload-profile-picture', async (req,res) => {
 
   //body : user token and file (if possible)
 
@@ -174,7 +176,7 @@ router.put('/upload-profile-picture', async (req,res) => {
     return
   }
 
-  const path = './tmp/'+uniqid()+'.jpg'
+  const path = './tmp/'+uniqid()
   await req.files.photo.mv(path, (err) => {
     if (err) {
       res.json({result: false, message: "Un problème est survenu lors de la sauvegarde de votre photo."})
