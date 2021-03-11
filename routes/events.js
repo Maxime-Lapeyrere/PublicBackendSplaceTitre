@@ -25,7 +25,7 @@ router.post('/create-event', async (req,res) => {
 
         const newEvent = new EventModel({
             admin: user._id,
-            invitedUsers,
+            invitedUsers, 
             participatingUsers: [],
             title,
             address,
@@ -41,6 +41,12 @@ router.post('/create-event', async (req,res) => {
             privateEvent
         })
         const savedEvent = await newEvent.save()
+
+        for (var i = 0; i < invitedUsers.length; i++) {
+            const invitEvent = await UserModel.findById(invitedUsers[i])
+            invitEvent.eventsInvitations.push(savedEvent._id)
+            await invitEvent.save()
+        }
 
         if (placeId) {
             const place = await PlaceModel.findOne({_id: placeId})
@@ -100,6 +106,9 @@ router.put('/update-event', async (req,res) => {
         res.json({result:false, message:"Un problème est survenu lors de la modification de cette évènement."})
     }
 })
+
+
+
 
 //cancel event
 router.post('/cancel-event', async (req,res) => {

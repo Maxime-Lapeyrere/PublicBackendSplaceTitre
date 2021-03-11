@@ -55,6 +55,7 @@ const userSchema = new mongoose.Schema({
     club: [String], //(?)
     language: String,
     conversations: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversations'}],
+    eventsInvitations: [{type: mongoose.Schema.Types.ObjectId, ref: 'events'}],
     connectionToken: String, // to be used to authenticate through the app, also, will be stored in local storage
     resetToken : String,
     resetTokenExpirationDate: Date
