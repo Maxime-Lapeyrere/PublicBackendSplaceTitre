@@ -36,8 +36,8 @@ const checkPasswordStrength = (password) => {
 
 //signup route
 router.post('/sign-up', async (req,res) => {
-
-  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber, geolocation} = req.body
+console.log(req.body);
+  const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
     res.json({result:false, message: "Un champ obligatoire est manquant."})
@@ -102,8 +102,8 @@ router.post('/sign-up', async (req,res) => {
       country,
       language: null,
       geolocation: {
-        latitude: geolocation ? geolocation.latitude : null,
-        longitude: geolocation ? geolocation.longitude : null
+        latitude: null,
+        longitude: null
       },
       phoneNumber,
       premium: false,
@@ -143,6 +143,8 @@ router.post('/sign-in', async (req,res) => {
 
   const {email, password} = req.body
 
+  console.log("sur la route sign in", req.body);
+
   const found = await UserModel.findOne({email})
   if (!found) {
     res.json({result: false, message: "L'email ou le mot de passe est incorrect."})
@@ -153,6 +155,7 @@ router.post('/sign-in', async (req,res) => {
   })
 
 })
+  
 
 //modif profil/preferences ( pas la photo de prof)
 router.put('/edit-profile', (req,res) => {
@@ -163,17 +166,17 @@ router.put('/edit-profile', (req,res) => {
 
 
 //upload photo de profil et edit current
-router.put('/upload-profile-picture', async (req,res) => {
+router.post('/upload-profile-picture/:token', async (req,res) => {
 
-  //body : user token and file (if possible)
-
-  const user = await UserModel.findOne({connectionToken: req.body.token})
+  console.log(req.params.token)
+console.log('test req files',req.files)
+  const user = await UserModel.findOne({connectionToken: req.params.token})
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
 
-  const path = './tmp/'+uniqid()+'.jpg'
+  const path = './tmp/'+uniqid()
   await req.files.photo.mv(path, (err) => {
     if (err) {
       res.json({result: false, message: "Un problème est survenu lors de la sauvegarde de votre photo."})
@@ -235,16 +238,19 @@ router.post('/get-my-events', async (req,res) => {
 router.post('/get-preferences', async (req,res) => {
 
   const {token} = req.body
+  console.log('token', token)
 
   const user = await UserModel.findOne({connectionToken: token})
+  console.log('user', user)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
-  const {favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = user
+  const {username, favoriteSports, favoritePlaces, club,birthday,bio,gender,handiSport,country,language,profilePicture,premium,distanceSearch,genderSearch,ageRange,timeAvailable} = user
   
   res.json({result: true, preferences: {
+    username,
     favoriteSports,
     favoritePlaces,
     club,

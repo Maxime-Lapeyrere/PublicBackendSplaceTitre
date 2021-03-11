@@ -22,11 +22,15 @@ router.post('/get-conversations-history', async (req, res) => {
 
 })
 
-router.post('/search-users', (req, res) => {
+router.post('/search-users', async (req, res) => {
+
+
 
 })
 
 router.post('/add-friend', (req, res) => {
+
+
 
 })
 
