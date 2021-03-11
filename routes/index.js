@@ -22,7 +22,10 @@ router.post('/get-events', async (req,res)=> {
   let {sportsSelected, distancePreference, userLocation, isOnMap} = req.body
   //date and time might be added later to optimise filtered info
   //once testing done, replace let by const
+  
+  const myUser = await UserModel.findOne({connectionToken: req.body.token})
 
+  
   if (!sportsSelected || !distancePreference) {
     res.json({result: false, message: "Missing info"})
     return
@@ -35,8 +38,8 @@ router.post('/get-events', async (req,res)=> {
 
   for (let i = 0; i < sportsSelected?.length;i++) {
 
-    const eventsFound = isOnMap ? await EventModel.find({sport: sportsSelected[i].id}) : await EventModel.find({sport: sportsSelected[i].id}).populate('places').exec()
-
+    const eventsFound = isOnMap ? await EventModel.find({sport: sportsSelected[i].id}) : await EventModel.find({_id:{"$nin":[...myUser.declinedEvents,...myUser.joinedEvents]},sport: sportsSelected[i].id})
+    console.log('cestmesevents',eventsFound.length)
     if (isOnMap) {
       eventsFound.forEach(e => {
         if (getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, e.location.lat, e.location.lon) <= distancePreference 
@@ -79,7 +82,9 @@ router.post('/get-events', async (req,res)=> {
     }
     
   }
+  console.log('yolo',events.length)
   res.json({result:true, events})
+  
   
 })
 
@@ -167,6 +172,8 @@ router.post('/get-places', async (req,res)=> {
   userLocation.lon = 2.333333
   //end
 
+  const requestingUser = await UserModel.findOne({connectionToken: req.body.token})
+  
   for (let i = 0; i < sportsSelected?.length;i++) {
 
     const placesFound = await PlaceModel.find({sports: sportsSelected[i].id}).populate('events').exec()
@@ -231,10 +238,13 @@ router.post('/get-users', async (req,res) => {
   const date2 = new Date()
   date2.setFullYear(date2.getFullYear() - ageRange[1])
 
-  const usersFound = await UserModel.find({birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
 
-  console.log("initial users finding")
-  console.log(usersFound)
+
+  const requestingUser = await UserModel.findOne({connectionToken: req.body.token})
+  
+  // console.log('test usersFound',[...requestingUser.swipedPeople, ...requestingUser.friendRequestsSwipe])
+  const usersFound = await UserModel.find({id:{"$nin": [...requestingUser.swipedPeople, ...requestingUser.friendRequestsSent]}, birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
+  // const usersFound = await UserModel.find({birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
   
   sportsSelected.forEach(sport => {
     usersFound.forEach(user => {
@@ -269,24 +279,26 @@ router.post('/get-users', async (req,res) => {
 //swipe people
 router.post('/like', async (req,res)=> {
 
-  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+  const {likedId, token} = req.body // userID = targeted user, token = actual user using app
   
   const requestingUser = await UserModel.findOne({connectionToken: token})
   if (!requestingUser) {
+    
     res.json({result:false, message: "asking user not found"})
     return
   }
-  const targetUser = await UserModel.findById(userID)
+  
+  const targetUser = await UserModel.findById(likedId)
   if (!targetUser) {
+    
     res.json({result:false, message: "target user not found"})
     return
   }
-
   requestingUser.friendRequestsSent.push(targetUser._id)
   targetUser.friendRequestsSwipe.push(requestingUser._id)
-
   await requestingUser.save()
   await targetUser.save()
+  
 
   res.json({result: true})
 })
@@ -318,10 +330,11 @@ router.post('/dislike', async (req,res)=> {
 router.post('/join-event', async (req,res)=> {
 
   const {eventId, token} = req.body
-
+console.log('coucou')
   const user = await UserModel.findOne({connectionToken: token})
+  console.log('cest passé')
   const eventFound = await EventModel.findById(eventId)
-
+console.log('et la ')
   if (!user) {
     res.json({result:false, message: "asking user not found"})
     return
