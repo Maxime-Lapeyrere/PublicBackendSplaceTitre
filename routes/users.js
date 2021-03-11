@@ -155,6 +155,23 @@ router.post('/sign-in', async (req,res) => {
   })
 
 })
+
+
+// router.post('/checkemail', async (req,res) => {
+// const {email} = req.body
+// console.log("checking your email");
+
+// const emailChecked = await UserModel.findOne({email})
+
+
+// if (emailChecked) {
+//   res.json({result: false, message: "Cet email existe déjà."})
+//   return
+// }
+
+
+// })
+
   
 
 //modif profil/preferences ( pas la photo de prof)
