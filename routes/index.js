@@ -261,6 +261,11 @@ router.post('/join-event', async (req,res)=> {
     return
   }
 
+  const eventIndex = user.eventsInvitations.findIndex(e => e.equals(eventFound._id))
+  if(eventIndex != -1) {
+    user.eventsInvitations.splice(eventIndex, 1)
+  }
+
   user.joinedEvents.push(eventFound._id)
   eventFound.participatingUsers.push(user._id)
 
@@ -284,6 +289,11 @@ router.post('/decline-event', async (req,res)=> {
   if (!eventFound) {
     res.json({result:false, message: "event not found"})
     return
+  }
+
+  const eventIndex = user.eventsInvitations.findIndex(e => e.equals(eventFound._id))
+  if(eventIndex != -1) {
+    user.eventsInvitations.splice(eventIndex, 1)
   }
 
   user.declinedEvents.push(eventFound._id)
