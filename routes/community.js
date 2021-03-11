@@ -74,9 +74,8 @@ router.post('/get-messages', async (req, res) => {
 })
 
 router.post('/save-messages', async (req, res) => {
-  //used in parallel of socket io route
-  //if conv id n'existe pas : create a new conv document, save message
-  //body : conv id, messages data
+
+  console.log("in save-messages route")
 
   const {convID, messageData, token} = req.body
 
@@ -88,6 +87,9 @@ router.post('/save-messages', async (req, res) => {
     user: messageData.user,
     createdAt: messageData.createdAt
   }
+
+  console.log("createdAt type")
+  console.log(typeof realMessageData.createdAt)
   
   let conv = convID ? await ConvModel.findById(convID) : null
   const user = await UserModel.findOne({connectionToken: token})
@@ -99,6 +101,8 @@ router.post('/save-messages', async (req, res) => {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
+
+  console.log("found user")
 
   if (!conv) {
     console.log("new conv")
@@ -115,9 +119,10 @@ router.post('/save-messages', async (req, res) => {
     await user.save()
   } else {
     conv.messages.push(realMessageData)
+    conv.lastMessage = realMessageData.text
     console.log("existing conv")
     console.log(conv._id)
-    await newConv.save()
+    await conv.save()
   }
 
   res.json({result:true, convID: conv._id})
