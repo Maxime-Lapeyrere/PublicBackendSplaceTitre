@@ -38,6 +38,31 @@ router.post('/get-conversations-history', async (req, res) => {
 
 })
 
+// pour la route du point 2, l'idée est de recup le token du user, de chercher le user et de populate le champ 'eventsInvitations' ( que tu as ajouté dans le model du User)
+// la route 'get-conversation-history' du fichier community.js est similaire, si jamais 
+
+router.post('/get-invitations-event', async (req, res) => {
+  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate({path: 'eventsInvitations'}).exec();
+
+  const events = []
+  user.eventsInvitations.forEach(e => {
+    const {_id,participatingUsers,title,sportName,time,address,sport,placeName} = e
+    events.push({
+      title,
+      address,
+      sport: sport ? sport : null,
+      sportName: sportName ? sportName : null,
+      placeName: placeName ? placeName : null,
+      time,
+      participatingUsers,
+      eventId: _id,
+    })
+  })
+
+  res.json({ result: true, events})
+
+})
+
 router.get('/search-users', async (req, res) => {
 
   const allUsers = await UserModel.find()
