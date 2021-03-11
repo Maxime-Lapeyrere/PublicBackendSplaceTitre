@@ -30,23 +30,104 @@ router.post('/add-friend', (req, res) => {
 
 })
 
-//load conversation only when entering it
-router.post('/get-messages', (req, res) => {
-  //load conv with conv ID and user token for further security
+router.post('/accept-friends-request', async (req,res) => {
+
+  const {userID, token} = req.body // userID = targeted user, token = actual user using app
+
+  const requestingUser = await UserModel.findOne({connectionToken: token})
+  if (!requestingUser) {
+    res.json({result:false, message: "asking user not found"})
+    return
+  }
+  const targetUser = await UserModel.findById(userID)
+  if (!targetUser) {
+    res.json({result:false, message: "target user not found"})
+    return
+  }
+
+  requestingUser.friendsList.push(targetUser._id)
+  targetUser.friendsList.push(requestingUser._id)
+
+  await requestingUser.save()
+  await targetUser.save()
+
+  res.json({result: true})
+
 })
 
-router.post('/save-messages', (req, res) => {
-  //used in parallel of socket io route
-  //if conv id n'existe pas : creaete a new conv document, save message
+//load conversation only when entering it
+router.post('/get-messages', async (req, res) => {
+  //load conv with conv ID and user token for further security
 
+  const {convID, token} = req.body
+
+  const user = await UserModel.findOne({connectionToken: token})
+  const conv = await ConvModel.findById(convID)
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+  res.json({result:true, conversation: conv})
+
+})
+
+router.post('/save-messages', async (req, res) => {
+  //used in parallel of socket io route
+  //if conv id n'existe pas : create a new conv document, save message
+  //body : conv id, messages data
+
+  const {convID, messageData, token} = req.body
+
+  console.log("CONVID")
+  console.log(convID)
+
+  const realMessageData = {
+    text: messageData.text,
+    user: messageData.user,
+    createdAt: messageData.createdAt
+  }
   
+  let conv = convID ? await ConvModel.findById(convID) : null
+  const user = await UserModel.findOne({connectionToken: token})
+
+  console.log("CONV (IF FOUND)")
+  console.log(conv)
+
+  if (!user) {
+    res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
+    return
+  }
+
+  if (!conv) {
+    console.log("new conv")
+    const newConv = new ConvModel({
+      name: "A Conv Name",
+      users: [user._id],
+      messages: [realMessageData],
+      lastMessage: realMessageData.text,
+      group : false
+    })
+    conv = await newConv.save()
+    console.log(conv._id)
+    user.conversations.push(conv._id)
+    await user.save()
+  } else {
+    conv.messages.push(realMessageData)
+    console.log("existing conv")
+    console.log(conv._id)
+    await newConv.save()
+  }
+
+  res.json({result:true, convID: conv._id})
 })
 
 
 module.exports = router;
 
 // route get conv history
-// route get laod messages
+// route get load messages
 // route save messages
 // creer une conv avec no friend
 // send 1st message

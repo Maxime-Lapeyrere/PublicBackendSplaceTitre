@@ -102,7 +102,16 @@ const fixDate = (date, time) => {
         return
     }
     //const dateOnly = date.getDay()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()
-    const unix = Date.parse(date + " " + time)
+    function formattedDate(date) {
+        const yyyy = date.slice(6, 10)
+        const dd = date.slice(0, 2)
+        const mm = date.slice(3, 5);
+        return mm + '/' + dd + '/' + yyyy;
+    }
+    date = formattedDate(date)
+    console.log('voiciladate', date)
+      const unix = Date.parse(date + " " + time)
+      console.log('test',unix)
     return new Date(unix)
 }
 
