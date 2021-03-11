@@ -38,15 +38,19 @@ var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
   console.log('User connected =>', socket.conn.remoteAddress);
-  socket.on('openCon', (data) => {
+  socket.on('goConv', (data) => {
     if (socket.room) {
       socket.leave(socket.room)
     }
     socket.join(data.convID)
     socket.room = data.convID
   })
+  socket.on('newConv', () => {
+    if (socket.room) {
+      socket.leave(socket.room)
+    }
+  })
   socket.on('sendMessage', (data) => {
-    console.log('Message received =>',(data.message))
     io.to(socket.room).emit('sendMessageToAll', {message : data.message[0]})
   });
 });
