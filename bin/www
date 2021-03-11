@@ -38,26 +38,20 @@ var io = require('socket.io')(server);
 
 io.on('connection', function(socket) {
   console.log('User connected =>', socket.conn.remoteAddress);
-  socket.on('sendMessage', function(data) {
-    console.log('Message received =>',(data.message))
-
-    const res = request('POST','http://localhost:3000/community/save-messages', {
-      json: {token: data.token, convID: data.convID, messageData: data.message[0]}
-    })
-    console.log("raw res")
-    console.log(res)
-    const resJSON = JSON.parse(res.body)
-    console.log("json res")
-    console.log(resJSON)
-
-    if (resJSON.result) {
-      io.emit('sendMessageToAll', {message : data.message[0], convID: resJSON.convID})
-    } else {
-      data.message.text = "Erreur"
-      socket.emit('sendMessageToAll', {message : data.message[0], convID: resJSON.convID})
+  socket.on('goConv', (data) => {
+    if (socket.room) {
+      socket.leave(socket.room)
     }
-
-    
+    socket.join(data.convID)
+    socket.room = data.convID
+  })
+  socket.on('newConv', () => {
+    if (socket.room) {
+      socket.leave(socket.room)
+    }
+  })
+  socket.on('sendMessage', (data) => {
+    io.to(socket.room).emit('sendMessageToAll', {message : data.message[0]})
   });
 });
 

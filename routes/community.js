@@ -9,21 +9,41 @@ const UserModel = require('./db/UserModel')
 // list d'amis, recherche user, and start conversation
 
 //generer la liste d'amis 
-router.post('/get-friends', (req, res) => {
+router.post('/get-friends', async (req, res) => {
   //fetch friend list and conversations history from db
+
+  const user = await UserModel.findOne({connectionToken: req.body.token}).populate('friendsList').exec()
+
+  if (!user) {
+    res.json({result:false})
+    return
+  }
+
+  const friends = []
+  user.friendsList.forEach(e => friends.push({
+    _id: e._id,
+    username: e.username,
+    profilePicture: e.profilePicture
+  }));
+
+  res.json({result: true, friendsList : friends})
+
 })
 
 //ET l'historique de conversations
 router.post('/get-conversations-history', async (req, res) => {
-  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate('conversations', 'name users lastMessage group').exec();
-
+  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate({path: 'conversations',select: 'name users lastMessage group', populate: {path: 'users', select: 'username profilePicture'}}).exec();
 
   res.json({ result: true, conversations: user.conversations , id : user._id , avatar : user.profilePicture , name: user.username })
 
 })
 
-router.post('/search-users', async (req, res) => {
+router.get('/search-users', async (req, res) => {
 
+  const allUsers = await UserModel.find()
+
+  console.log("Sur la route seach users");
+  res.json({ result: true, allUsers })
 
 
 })
@@ -66,62 +86,60 @@ router.post('/get-messages', async (req, res) => {
   const {convID, token} = req.body
 
   const user = await UserModel.findOne({connectionToken: token})
-  const conv = await ConvModel.findById(convID)
+  const conv = await ConvModel.findById(convID).populate("users","_id username profilePicture").exec()
+
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
 
-  res.json({result:true, conversation: conv})
+  const otherUsers = []
+  conv.users.forEach(e => {
+    if (!e._id.equals(user._id)) otherUsers.push(e)
+  })
+
+  res.json({result:true, conversation: conv, otherUsers})
 
 })
 
 router.post('/save-messages', async (req, res) => {
-  //used in parallel of socket io route
-  //if conv id n'existe pas : create a new conv document, save message
-  //body : conv id, messages data
 
-  const {convID, messageData, token} = req.body
-
-  console.log("CONVID")
-  console.log(convID)
-
-  const realMessageData = {
-    text: messageData.text,
-    user: messageData.user,
-    createdAt: messageData.createdAt
-  }
+  const {convID, messageData, token, addedUsers} = req.body
   
   let conv = convID ? await ConvModel.findById(convID) : null
   const user = await UserModel.findOne({connectionToken: token})
-
-  console.log("CONV (IF FOUND)")
-  console.log(conv)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
     return
   }
 
-  if (!conv) {
-    console.log("new conv")
+  if (!conv && addedUsers.length > 0) {
     const newConv = new ConvModel({
       name: "A Conv Name",
-      users: [user._id],
-      messages: [realMessageData],
-      lastMessage: realMessageData.text,
+      users: [user._id].concat(addedUsers.map(e => e._id)),
+      messages: [messageData],
+      lastMessage: messageData.text,
       group : false
     })
     conv = await newConv.save()
-    console.log(conv._id)
     user.conversations.push(conv._id)
     await user.save()
+    
+    for (let i =0; i < addedUsers.length; i++) {
+      const otherUser = await UserModel.findById(addedUsers[i])
+      otherUser.conversations.push(conv._id)
+      await otherUser.save()
+    }
+
+  } else if (conv) {
+    conv.messages.push(messageData)
+    conv.lastMessage = messageData.text
+    await conv.save()
   } else {
-    conv.messages.push(realMessageData)
-    console.log("existing conv")
-    console.log(conv._id)
-    await newConv.save()
+    res.json({result:false, message: addedUsers.length === 0 ? "no user added" : "no conv found"})
+    return
   }
 
   res.json({result:true, convID: conv._id})
@@ -129,15 +147,3 @@ router.post('/save-messages', async (req, res) => {
 
 
 module.exports = router;
-
-// route get conv history
-// route get load messages
-// route save messages
-// creer une conv avec no friend
-// send 1st message
-// save un nouveau doc conv avec en foreign key le user id
-// + save conv foreign key dans user convs
-// save messages dans conv
-// send 2nd message to try
-// quit app
-// go back et render conv
