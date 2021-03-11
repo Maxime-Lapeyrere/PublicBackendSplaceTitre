@@ -151,7 +151,7 @@ router.post('/get-users', async (req,res) => {
   const users = []
 
   let {sportsSelected, distancePreference, userLocation, ageRange, genderSelected} = req.body
-
+console.log('salut cest cool', req.body)
 
   if (!sportsSelected || !distancePreference || !ageRange || !genderSelected) {
     res.json({result: false, message: "Missing info"})
@@ -171,25 +171,35 @@ router.post('/get-users', async (req,res) => {
 
 
   const requestingUser = await UserModel.findOne({connectionToken: req.body.token})
-  
+  console.log('pendant')
   // console.log('test usersFound',[...requestingUser.swipedPeople, ...requestingUser.friendRequestsSwipe])
-  const usersFound = await UserModel.find({id:{"$nin": [...requestingUser.swipedPeople, ...requestingUser.friendRequestsSent]}, birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
+  const usersFound = await UserModel.find({_id:{"$nin": [...requestingUser.swipedPeople, ...requestingUser.friendRequestsSent]}, birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
   // const usersFound = await UserModel.find({birthday: {$gte: date2, $lte: date1}, gender: genderSelected.name})
-  
+  console.log('apres', usersFound.length)
   sportsSelected.forEach(sport => {
     usersFound.forEach(user => {
-      const distanceFromUser = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, user.geolocation.latitude, user.geolocation.longitude)
-      if (distanceFromUser <= distancePreference 
-      && user.favoriteSports.find(fav => fav.id === sport.id)) {
-
-        const reverseGeo = requestSync('GET',`https://api-adresse.data.gouv.fr/reverse/?lon=${user.geolocation.longitude}&lat=${user.geolocation.latitude}`)
-        const reverseGeoJSON = JSON.parse(reverseGeo.body)
+      // const distanceFromUser = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, user.geolocation.latitude, user.geolocation.longitude)
+      // console.log('diiiiiistance', distanceFromUser)
+      if (
+        // distanceFromUser <= distancePreference && 
+        user.favoriteSports.find(fav => fav.id === sport.id)) {
+console.log('bim')
+        // const reverseGeo = requestSync('GET',`https://api-adresse.data.gouv.fr/reverse/?lon=${user.geolocation.longitude}&lat=${user.geolocation.latitude}`)
+        // const reverseGeoJSON = JSON.parse(reverseGeo.body)
 
         users.push({
           name: user.username,
           age: calculateAge(user.birthday),
-          distance: distanceFromUser,
-          city: reverseGeoJSON.features[0]?.properties.city,
+          //
+          // a remettre une fois la position des users enregistrés
+          distance: 0,
+          //distanceFromUser
+          city: "paris",
+          //
+          // a remettre une fois la position des users enregistrés
+          //
+          // reverseGeoJSON.features[0]?.properties.city,
+          //
           jobTitle: user.jobTitle ? user.jobTitle : null,
           education: user.education? user.education : null,
           favoriteSports: user.favoriteSports,
@@ -229,9 +239,9 @@ router.post('/like', async (req,res)=> {
   await requestingUser.save()
   await targetUser.save()
   
-
   res.json({result: true})
 })
+// console.log('cestmesevents',eventsFound.length)
 
 //swipe people
 router.post('/dislike', async (req,res)=> {
