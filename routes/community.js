@@ -38,8 +38,12 @@ router.post('/get-conversations-history', async (req, res) => {
 
 })
 
-router.post('/search-users', async (req, res) => {
+router.get('/search-users', async (req, res) => {
 
+  const allUsers = await UserModel.find()
+
+  console.log("Sur la route seach users");
+  res.json({ result: true, allUsers })
 
 
 })
