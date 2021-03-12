@@ -186,27 +186,35 @@ console.log('salut cest cool', req.body)
 console.log('bim')
         // const reverseGeo = requestSync('GET',`https://api-adresse.data.gouv.fr/reverse/?lon=${user.geolocation.longitude}&lat=${user.geolocation.latitude}`)
         // const reverseGeoJSON = JSON.parse(reverseGeo.body)
+     
+        //  console.log( usersFound._id)
+         console.log(typeof user._id)
+         console.log(typeof users[0]?.userId)
+if(users.findIndex(e => JSON.stringify(e.userId) === JSON.stringify(user._id)) == -1){
 
-        users.push({
-          name: user.username,
-          age: calculateAge(user.birthday),
-          //
-          // a remettre une fois la position des users enregistrés
-          distance: 0,
-          //distanceFromUser
-          city: "paris",
-          //
-          // a remettre une fois la position des users enregistrés
-          //
-          // reverseGeoJSON.features[0]?.properties.city,
-          //
-          jobTitle: user.jobTitle ? user.jobTitle : null,
-          education: user.education? user.education : null,
-          favoriteSports: user.favoriteSports,
-          bio: user.bio,
-          timeAvailable : user.timeAvailable,
-          userId: user._id
-        })
+  users.push({
+    name: user.username,
+    age: calculateAge(user.birthday),
+    //
+    // a remettre une fois la position des users enregistrés
+    distance: 0,
+    //distanceFromUser
+    city: "paris",
+    //
+    // a remettre une fois la position des users enregistrés
+    //
+    // reverseGeoJSON.features[0]?.properties.city,
+    //
+    jobTitle: user.jobTitle ? user.jobTitle : "tbd",
+    education: user.education? user.education : "tbd",
+    favoriteSports: user.favoriteSports,
+    bio: user.bio? user.bio : "tbd",
+    timeAvailable : user.timeAvailable,
+    userId: user._id,
+    profilePicture: user.profilePicture? user.profilePicture : "https://cdn.pixabay.com/photo/2017/10/05/22/55/anonymous-2821433_960_720.jpg"
+
+  })
+}
       }
     })
   })
