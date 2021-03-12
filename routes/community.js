@@ -63,6 +63,24 @@ router.post('/get-invitations-event', async (req, res) => {
 
 })
 
+router.post('/get-invitations-people', async (req, res) => {
+  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate({path: 'friendRequestsSwipe'}).exec();
+
+  const users = []
+  user.friendRequestsSwipe.forEach(e => {
+    const {_id,username, birthday, bio, profilePicture} = e
+    users.push({
+      username,
+      birthday,
+      bio,
+      profilePicture,
+      _id
+    })
+  })
+
+  res.json({ result: true, users})
+})
+
 router.get('/search-users', async (req, res) => {
 
   const allUsers = await UserModel.find()
