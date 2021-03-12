@@ -32,10 +32,10 @@ router.post('/get-friends', async (req, res) => {
 
 //ET l'historique de conversations
 router.post('/get-conversations-history', async (req, res) => {
-  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate({path: 'conversations',select: 'name users lastMessage group', populate: {path: 'users', select: 'username profilePicture'}}).exec();
+  const userR = await UserModel.findOne({ connectionToken: req.body.token })
+  const user = await UserModel.findOne({ connectionToken: req.body.token }).populate({path: 'conversations',select: 'name users lastMessage group', populate: {path: 'users', select: '_id username profilePicture', match: { _id: {$ne: userR._id}}}}).exec()
 
   res.json({ result: true, conversations: user.conversations , id : user._id , avatar : user.profilePicture , name: user.username })
-
 })
 
 // pour la route du point 2, l'idée est de recup le token du user, de chercher le user et de populate le champ 'eventsInvitations' ( que tu as ajouté dans le model du User)
