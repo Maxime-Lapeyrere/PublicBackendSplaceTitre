@@ -36,7 +36,7 @@ const checkPasswordStrength = (password) => {
 
 //signup route
 router.post('/sign-up', async (req,res) => {
-console.log(req.body);
+// console.log(req.body);
   const {username, email, password, favoriteSports, bio, birthday, gender, handiSport, country, phoneNumber} = req.body
 
   if (!username || !email || !password || !gender || !country || handiSport === undefined || !phoneNumber) {
@@ -258,7 +258,7 @@ router.post('/get-preferences', async (req,res) => {
   console.log('token', token)
 
   const user = await UserModel.findOne({connectionToken: token})
-  console.log('user', user)
+  // console.log('user', user)
 
   if (!user) {
     res.json({result:false, message:"Un problème est survenu lors du chargement de votre profil.", disconnectUser: true})
